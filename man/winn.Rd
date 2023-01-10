@@ -7,7 +7,7 @@
 winn(input.dat, group.var = "plate", max.knots = 10, debug = T, runall = F)
 }
 \arguments{
-\item{input.dat}{Study ID.}
+\item{input.dat}{input dataset as data frame or matrix}
 
 \item{group.var}{Grouping variable. Defaults to "plate".}
 
@@ -16,18 +16,11 @@ winn(input.dat, group.var = "plate", max.knots = 10, debug = T, runall = F)
 \item{debug}{Debug mode. Defaults to TRUE.}
 
 \item{runall}{Apply correction regrdless of white noise test.Defaults to FALSE.}
-
-\item{save.corrected.data}{Save corrected dataset. Defaults to TRUE}
-
-\item{save.pdfs}{Save pdfs of corrected/uncorrected data. Defaults to TRUE}
 }
 \value{
-A list (corrected.strict, corrected.lenient,corrected.resid, correction.summary)
+A list (corrected.metabolites, correction.summary)
 }
 \description{
 A function for metabolite correction
-}
-\examples{
-winn()
 }
 \keyword{WiNN}

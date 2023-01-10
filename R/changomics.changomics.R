@@ -18,8 +18,8 @@ library(splines)
 #' @import dplyr
 #' @export
 #' @examples
-#' met.df<-cbind.data.frame(met1,met2)
-#' changomics(met.df)
+#'
+#' changomics(as.data.frame(list(met1=rnorm(1000))))
 
 changomics<-function(data,
                      max.knots = 10,
@@ -232,25 +232,6 @@ fkPELT<-function(data,knots){
 # Normalize when you know all changepoints correctly already
 
 
-
-
-########
-# Compare method on real data
-compare_real_data<-function(data){
-  winn.pass.wn.2<-vector(length=dim(data)[2])
-  winn.ch.pass.wn.2<-vector(length=dim(data)[2])
-  f<-dim(data)[2]
-  for (i in 1:f) {
-    winn1<-winn(data[i],3,save.pdfs = FALSE)
-    winn.ch<-changomics(data[[i]],1,save.pdfs = FALSE)
-    winn.pass.wn.2[i]<-winn1$summary.transf["pass.wn.2"][[1]]
-    winn.ch.pass.wn.2[i]<-winn.ch$summary.transf["pass.wn.2"][[1]]
-  }
-
-  percent.pass.ch<-mean(winn.ch.pass.wn.2)
-  percent.pass.winn<-mean(winn.pass.wn.2)
-  return(c(percent.pass.winn,percent.pass.ch))
-}
 
 
 ########

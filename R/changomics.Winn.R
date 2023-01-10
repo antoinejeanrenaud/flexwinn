@@ -756,22 +756,17 @@ normalize.variance <- function(met.dat, vars, summary.transf, group.var, final=F
 #'
 #' @description A function for metabolite correction
 #' @param input.dat input dataset as data frame or matrix
-#' @param input.dat Study ID.
 #' @param group.var Grouping variable. Defaults to "plate".
 #' @param max.knots Maximum number of knots as % .
 #' @param debug Debug mode. Defaults to TRUE.
 #' @param runall Apply correction regrdless of white noise test.Defaults to FALSE.
-#' @param save.corrected.data Save corrected dataset. Defaults to TRUE
-#' @param save.pdfs Save pdfs of corrected/uncorrected data. Defaults to TRUE
-#' @return A list (corrected.strict, corrected.lenient,corrected.resid, correction.summary)
+#' @return A list (corrected.metabolites, correction.summary)
 #' @keywords WiNN
 #' @import hwwntest
 #' @import gam
 #' @import mgcv
 #' @import stringr
 #' @import lawstat
-#' @examples
-#' winn()
 winn <-
   function(input.dat,
            group.var = "plate",
@@ -794,9 +789,6 @@ winn <-
       max.knots = 10
       debug = T
       runall = F
-      save.corrected.data = T
-      save.uncorrected.data = T
-      save.pdfs = T
     }
     ###########################
 

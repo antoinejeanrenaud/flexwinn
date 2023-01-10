@@ -22,6 +22,6 @@ the corrected dataframe of metabolite(s).
 A function for metabolite correction
 }
 \examples{
-met.df<-cbind.data.frame(met1,met2)
-changomics(met.df)
+
+changomics(as.data.frame(list(met1=rnorm(1000))))
 }
