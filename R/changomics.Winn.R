@@ -1,5 +1,4 @@
 # WiNN version 0.4
-library(MASS)
 library(hwwntest)
 library(gam)
 library(mgcv)
@@ -766,7 +765,11 @@ normalize.variance <- function(met.dat, vars, summary.transf, group.var, final=F
 #' @param save.pdfs Save pdfs of corrected/uncorrected data. Defaults to TRUE
 #' @return A list (corrected.strict, corrected.lenient,corrected.resid, correction.summary)
 #' @keywords WiNN
-#' @export
+#' @import hwwntest
+#' @import gam
+#' @import mgcv
+#' @import stringr
+#' @import lawstat
 #' @examples
 #' winn()
 winn <-
