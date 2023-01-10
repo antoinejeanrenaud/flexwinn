@@ -7,6 +7,15 @@ Authors@R:
 Description: This package allow the user to use the changomics function which find the changepoints in
   the time series of a or many metabolites. The function then normalize the signal to recover an approximation
   of the original non distorted time series.
+Imports:
+  dplyr,
+  gam,
+  hwwntest,
+  lawstat,
+  mgcv,
+  sarima,
+  splines,
+  stringr
 License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
     license
 Encoding: UTF-8
