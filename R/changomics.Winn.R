@@ -26,8 +26,6 @@ greatest.closest.power.2 <- function(n) {
 
   i.closest <- i
 
-  # Is this really the power od 2 closest to "n"?
-  # (n=255 would return a "power of 2" i value = 7, while it is closer to 2^8)
   if (abs(n - 2 ^ (i + 1)) < (n - 2 ^ i)) {
     i.closest <- (i + 1)
   }
@@ -66,7 +64,6 @@ test.wn <- function(x, box.test.lag = 20) {
       # Perform the test and return p.value for w.noise (Ho: WN)
       p <- genwwn.test(x.no.na)[["p.value"]]
     } else{
-      #print("here 1")
 
       # Create 2 series of length 2^z:
       #   - from position 1 to 2^z
@@ -622,7 +619,7 @@ atf.mgcv.spline <- function(formula, data, df.range, spl.type="cr", boxlag=20, D
     # Ljung-Box test of autocorrelations on the residuals
     pvalue <- Box.test(res, lag=min(boxlag,length(res)-1), type = "Ljung-Box")$p.value
 
-    # Is this the best fit ?
+
     if(first.k){
       best.fit <- fit
       best.k   <- k
@@ -667,8 +664,6 @@ normalize.variance <- function(met.dat, vars, summary.transf, group.var, final=F
   print(vars[1:10])
   met.dat <- met.dat[vars]
   str(met.dat)
-  # plot(met.dat[[vars]])
-  # print(sum(is.na(met.dat[[vars]])))
   plates <- unique(unlist(lapply(strsplit(rownames(met.dat), "_"), function(x) {
     return(x[2])
   })))
@@ -678,19 +673,16 @@ normalize.variance <- function(met.dat, vars, summary.transf, group.var, final=F
   }else{
     is.hom.var <- homogen.var(met.dat)
   }
-  # Update status for metsbs that pass hom. var.
+  # Update status for metabs that pass hom. var.
   mets.pass.hom.var <- names(is.hom.var[is.hom.var])
   print(mets.pass.hom.var)
   for(i in mets.pass.hom.var){
     if(final){
       summary.transf[summary.transf$metabolite == get.orig.met.name(i), "norm.detr"] <- FALSE
     }else{
-      #print("HHHHHHHHHHH")
       summary.transf[summary.transf$metabolite == get.orig.met.name(i), "normalized"] <- FALSE
     }
   }
-
-  #print(table(is.hom.var), exclude=NULL)
 
   ############################################################
   # Step 2: Normalize by plate SD if homogeneity of variance
@@ -821,18 +813,12 @@ winn <-
       tryCatch(
         validate.input(df = input.dat, group.name = group.var),
         error = function(e) {
-          #message("An error occurred:\n", e)
-          message("", e)
-          quit(save = "default")
+          message("An error occurred:\n", e)
         },
         warning = function(w) {
           message("A warning occured:\n", w)
         }
       )
-
-    #################################
-    # Create study directory
-    #################################
 
     ########################################################
     # Create a summary data frame to keep track of
@@ -1002,36 +988,8 @@ winn <-
     # Determine number of independent dimensions by PCA
     is.wn.before.corr <- c()
 
-    # OD!!! ORIGINAL WiNN CODE
-    # # The number of independent dimensions
-    # print("=> Running first PCA ...")
-    # n.90.pc.before.corr <-
-    #   do.pca(res.norm.met.dt = met.dat[metabs.to.wn.test])
-    # if (debug) {
-    #   print(paste(
-    #     "DBG 1 - number independent components:",
-    #     n.90.pc.before.corr
-    #   ))
-    # }
-
-    # OD!!! global Ljung box test is not used anymore
-    # Other changes are on lines 2120, 2286 and 2296
-    # The number of independent dimensions
-    n.90.pc.before.corr <- 50
-    if (length(names(metabs.to.wn.test))>50) {
-      print("=> Running first PCA ...")
-      n.90.pc.before.corr <-
-        min(50, do.pca(res.norm.met.dt = met.dat[metabs.to.wn.test]))
-      if (debug) {
-        print(paste(
-          "DBG 1 - number independent components:",
-          n.90.pc.before.corr
-        ))
-      }
-    }
     # Set the p-value threshold to Bonferroni:
-    p.thr.before.corr <- 0.05 / n.90.pc.before.corr
-    p.thr.before.corr <- 1 # OD!!! force to detrend all
+    p.thr.before.corr <- 0.95 # OD!!! force to detrend all
     if (debug) {
       print(paste("DBG 2 - p-value threshold:",  p.thr.before.corr))
     }
@@ -1045,12 +1003,6 @@ winn <-
     # errors in the test for white noise function (eg length < 16)
     mets.cannot.test <-
       names(is.wn.before.corr[is.na(is.wn.before.corr)])
-    # if (length(mets.cannot.test) > 0) {
-    #   print("Metabolites that could not be tested for WN:", log.file = cannot.correct)
-    #   for (i in mets.cannot.test) {
-    #     print(i, log.file = cannot.correct)
-    #   }
-    # }
 
     # Select the metabolites that do *not* pass the WN test and must be detrended
     mets.to.correct <-
@@ -1208,8 +1160,6 @@ winn <-
 
           # If the plate has only <=10 data points do *not* apply the spline regression
           # OD!!: if box ljung test for the plate is not signif do not run detrending either
-          #if(dim(mydf)[1] <= 10 | sum(is.na(mydf$y)) > 0 ){
-          #if(dim(mydf)[1] <= 10 | sum(is.na(mydf$y)) > 0 | plate.wn > .01){
           if(dim(mydf)[1] <= 10 | sum(is.na(mydf$y)) > 0 | plate.wn > .01){
             pred.trend <- c(pred.trend, rep(0, dim(mydf)[1]))
             log.detrend[count.met.plate, 1] <- met
@@ -1265,7 +1215,7 @@ winn <-
         print(summary.transf)
 
         # Get the white noise test p-value
-        p.wn <- Box.test(z, lag=20, type = "Ljung-Box")$p.value
+        p.wn <- Box.test(z, lag=min(length(z),20), type = "Ljung-Box")$p.value
 
         # Now compare the "p.wn" value for this metabolite with the
         # threshold p.value determined in step 4
@@ -1281,14 +1231,9 @@ winn <-
         summary.transf[summary.transf$metabolite %in% met.original, "pass.wn.2"] <- passwn2
         print(summary.transf)
 
-        #################
-        # Generate plots
-        #################
-
 
       } # Closes "for(met in ...)"
 
-      # Dump the detrend log to file
 
 
     } # Closes "if (length(mets.to.correct) > 0)"
@@ -1318,7 +1263,6 @@ winn <-
 
     for (i in summary.transf$metabolite) {
       x <- summary.transf[as.character(summary.transf$metabolite) == i, ]
-      #x <- correction.summary[as.character(summary.transf$metabolite) == i, ]
       col.name <- c()
       if (x$detrended == F &
           x$normalized == F &
@@ -1372,30 +1316,6 @@ winn <-
     corrected.df <- corrected.df[summary.transf$metabolite]
     print(names(corrected.df))
 
-
-    # The dataset to save and return
-    uncorrected.and.corrected <- met.dat
-
-
-
-    ############################################
-    # Save summary
-    ############################################
-
-
-    ##################################################
-    # Create also pdfs of the metabolites that do not
-    # go through detrending but are either:
-    # - uncorrected
-    # - sd-plate normalized
-    # - residualized
-    # - sd-normalized and residualized
-    # dir.create(pdfs.d)
-    # dir.create(untr.d)
-    # dir.create(sd.norm.only.d)
-    # dir.create(resid.only.d)
-    # dir.create(sd.norm.resid.d)
-    ##################################################
 
 
     # Returned object

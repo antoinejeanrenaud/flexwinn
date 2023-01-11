@@ -22,6 +22,6 @@ the corrected dataframe of metabolite(s).
 A function for metabolite correction
 }
 \examples{
-
-changomics(as.data.frame(list(met1=rnorm(1000))))
+met1<-rnorm(1000)
+changomics(as.data.frame(met1))
 }

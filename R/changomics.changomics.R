@@ -16,18 +16,33 @@ library(splines)
 #' @import sarima
 #' @import splines
 #' @import dplyr
+#' @importFrom stats na.omit
 #' @export
 #' @examples
-#'
-#' changomics(as.data.frame(list(met1=rnorm(1000))))
+#' met1<-rnorm(1000)
+#' changomics(as.data.frame(met1))
 
 changomics<-function(data,
                      max.knots = 10,
                      debug = T,
                      runall = F){
   if (!is.data.frame(data)){
-    print("data must be a data frame")
-    return(data)
+    stop("data must be a data frame")
+  }
+  NA_present<-FALSE
+  for (k.na in 1:dim(data)[2]) {
+    if (sum(is.na(data[,k.na]))){
+      NA_present<-TRUE
+    }
+  }
+  if (NA_present){
+    warning("There is(are) NA value(s) in the data frame, na.omit() removed the rows containing NA(s).
+            recommended-> remove Na's yourself to not remove a full row")
+    data<-na.omit(data)
+  }
+  if (nrow(data)==0){
+    stop("All rows have been removed because there were Na's in each row: remove yourself Na's and run algo
+         for one metabolites at a time")
   }
   corrected<-data
   for (k in 1:dim(data)[2]){
