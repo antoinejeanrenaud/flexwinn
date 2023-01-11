@@ -25,6 +25,10 @@ changomics<-function(data,
                      max.knots = 10,
                      debug = T,
                      runall = F){
+  if (!is.data.frame(data)){
+    print("data must be a data frame")
+    return(data)
+  }
   corrected<-data
   for (k in 1:dim(data)[2]){
   knots<-seq(1,length(data[[k]]),length.out=floor(length(data[[k]])/60)+2)
@@ -66,7 +70,8 @@ changetometa<-function(data,changepoints){
 
 
 ##########
-
+#' @noRd
+#' @importFrom stats runif rbeta
 datagen<-function(change=5){
   data<-numeric(0)
   datat<-numeric(0)
@@ -124,7 +129,8 @@ datagen<-function(change=5){
 
 ######
 #data  generation with no trend
-
+#' @noRd
+#' @importFrom stats runif rbeta
 datagen.no.trend<-function(change=5){
   data<-numeric(0)
   datat<-numeric(0)
@@ -155,6 +161,8 @@ datagen.no.trend<-function(change=5){
 
 ########
 #Cost of segment calculator with fixed knots
+#' @noRd
+#' @importFrom stats lm
 fksplinecost<-function(data,knots,index1=1,index2=length(data)){
   size<-length(data)
   if (size==1){
@@ -236,6 +244,9 @@ fkPELT<-function(data,knots){
 
 ########
 # Test if find correctly changepoints
+#' @noRd
+#' @importFrom graphics abline par
+#' @importFrom stats ts
 test<-function(nchange=6){
   x<-1:200
   y<-1:150

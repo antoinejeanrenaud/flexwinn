@@ -1,6 +1,5 @@
 # WiNN version 0.4
 library(hwwntest)
-library(gam)
 library(mgcv)
 library(stringr)
 library(lawstat) # <= Form Leveve test. Temporary until we get the "car" library working
@@ -111,6 +110,8 @@ test.wn <- function(x, box.test.lag = 20) {
 ###################
 # smoothing spline
 ###################
+#' @noRd
+#' @importFrom stats as.formula predict na.exclude
 apply.gam.hastie <- function(y, fun = "spline", k) {
   x <- 1:length(y)
 
@@ -121,7 +122,7 @@ apply.gam.hastie <- function(y, fun = "spline", k) {
   }
   #form <- paste("y ~ ", fun.type,"(x)", sep="") s(x, k = -1, bs = "cs"
   form <- paste("y ~ ", fun.type, "(x, ", k , ")", sep = "")
-  m <- gam(as.formula(form), na.action = na.exclude)
+  m <- mgcv::gam(as.formula(form), na.action = na.exclude)
 
   return(predict(m, newdata = data.frame(x = x)))
 }
@@ -330,6 +331,8 @@ validate.input <- function(df, group.name) {
 # - TRUE : failed to reject homogeneity of variance
 # - FALSE: reject homogeneity of variance
 #################################################################
+#' @noRd
+#' @importFrom stats sd shapiro.test fligner.test as.formula
 homogen.var <- function(met.dat)
 {
   # Create a vector to store results of homogeneity variance test
@@ -384,6 +387,8 @@ homogen.var <- function(met.dat)
 ################################################
 # Residualize
 ################################################
+#' @noRd
+#' @importFrom stats as.formula resid na.exclude
 residualize <- function(met.df, met, group.var, plates) {
   for (i in 1:(length(plates) - 1)) {
     on.plate <- paste("in.", i, sep = "")
@@ -421,6 +426,8 @@ residualize <- function(met.df, met, group.var, plates) {
 ######################################################
 # Determine number of independent dimensions by PCA
 ######################################################
+#' @noRd
+#' @importFrom stats prcomp
 do.pca <- function(res.norm.met.dt) {
   # PCA
   n.90.pc <- tryCatch({
@@ -548,6 +555,9 @@ validate.formula <- function(form, DEBUG=FALSE){
 ###########################
 # ACF guided spline
 ###########################
+#' @noRd
+#' @importFrom stats as.formula residuals Box.test
+#' @importFrom graphics lines
 atf.mgcv.spline <- function(formula, data, df.range, spl.type="cr", boxlag=20, DEBUG=FALSE){
 
   # Print function call
@@ -645,6 +655,9 @@ atf.mgcv.spline <- function(formula, data, df.range, spl.type="cr", boxlag=20, D
 ######################
 # Normalize variance #
 ######################
+#' @noRd
+#' @importFrom stats sd
+#' @importFrom utils str
 normalize.variance <- function(met.dat, vars, summary.transf, group.var, final=FALSE){
 
   #########################################################
@@ -762,8 +775,9 @@ normalize.variance <- function(met.dat, vars, summary.transf, group.var, final=F
 #' @param runall Apply correction regrdless of white noise test.Defaults to FALSE.
 #' @return A list (corrected.metabolites, correction.summary)
 #' @keywords WiNN
+#' @importFrom stats aov as.formula Box.test
+#' @importFrom utils str tail
 #' @import hwwntest
-#' @import gam
 #' @import mgcv
 #' @import stringr
 #' @import lawstat
@@ -1031,12 +1045,12 @@ winn <-
     # errors in the test for white noise function (eg length < 16)
     mets.cannot.test <-
       names(is.wn.before.corr[is.na(is.wn.before.corr)])
-    if (length(mets.cannot.test) > 0) {
-      print("Metabolites that could not be tested for WN:", log.file = cannot.correct)
-      for (i in mets.cannot.test) {
-        print(i, log.file = cannot.correct)
-      }
-    }
+    # if (length(mets.cannot.test) > 0) {
+    #   print("Metabolites that could not be tested for WN:", log.file = cannot.correct)
+    #   for (i in mets.cannot.test) {
+    #     print(i, log.file = cannot.correct)
+    #   }
+    # }
 
     # Select the metabolites that do *not* pass the WN test and must be detrended
     mets.to.correct <-
