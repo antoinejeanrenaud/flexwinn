@@ -1,10 +1,4 @@
 # WiNN version 0.4
-library(hwwntest)
-library(mgcv)
-library(stringr)
-library(lawstat) # <= Form Leveve test. Temporary until we get the "car" library working
-
-
 #####################################################
 # Utility function for test.wn
 # Find greatest power of 2 that is closest to "n"

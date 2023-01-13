@@ -1,6 +1,6 @@
 
 #####
-#' @title changomics
+#' @title changomics.2
 #' @description A function for metabolite correction
 #' @param data input dataset of metabolites as data frame.
 #' @param max.knots Maximum number of knots as % .
@@ -16,7 +16,7 @@
 #' met1<-rnorm(1000)
 #' changomics(as.data.frame(met1))
 
-changomics<-function(data,
+changomics.2<-function(data,
                      max.knots = 10,
                      debug = T,
                      runall = F){
@@ -40,18 +40,19 @@ changomics<-function(data,
   }
   corrected<-data
   for (k in 1:dim(data)[2]){
-  knots<-seq(1,length(data[[k]]),length.out=floor(length(data[[k]])/60)+2)
-  knots<-knots[-c(1,length(knots))]
-  knots<-knots+rep(0.5,length(knots))*(floor(knots)==knots)
-  changepoints<-fkPELT(data[[k]],knots = knots)
-  colname<-colnames(data[k])
-  if (is.null(colname)){colnames(data[k])<-paste("met_",k,sep="")}
-  df<-changetometa(data[k],changepoints)
-  winnresult<-winn(df,group.var = "plate",
-                   max.knots = max.knots,
-                   debug = debug,
-                   runall = runall)
-  corrected[k]<-winnresult$transf.corrected
+    knots<-seq(1,length(data[[k]]),length.out=floor(length(data[[k]])/60)+2)
+    knots<-knots[-c(1,length(knots))]
+    knots<-knots+rep(0.5,length(knots))*(floor(knots)==knots)
+    changepoints<-fkPELT(data[[k]],knots = knots)
+    colname<-colnames(data[k])
+    if (is.null(colname)){colnames(data[k])<-paste("met_",k,sep="")}
+    # df<-changetometa(data[k],changepoints)
+    # winnresult<-winn(df,group.var = "plate",
+    #                  max.knots = max.knots,
+    #                  debug = debug,
+    #                  runall = runall)
+    ch.result<-normalize(data[[k]],changepoints)
+    corrected[[k]]<-ch.result
   }
 
   return(corrected)
@@ -59,7 +60,7 @@ changomics<-function(data,
 }
 #########
 #change data to be used by winn
-changetometa<-function(data,changepoints){
+changetometa.2<-function(data,changepoints){
   names<-vector("character",length = length(data[[1]]))
   tau<-c(0,changepoints,length(data[[1]]))
   for (i in 1:(length(tau)-1)){
@@ -75,6 +76,95 @@ changetometa<-function(data,changepoints){
   colnames(ret)<-colnam
   row.names(ret)<-names
   return(ret)
+}
+normalize<-function(data,changepoints){
+  changes<-length(changepoints)
+  datanew<-data
+  tau<-c(0,changepoints,length(data))
+  for (c in 1:(changes+1)){
+    subset<-datanew[(tau[c]+1):tau[c+1]]
+    size<-length(subset)
+
+    if (size>=5){
+      dfw<-dfwhitenoise(subset)
+      spline<-smooth.spline(subset,df=dfw)
+      datanew[(tau[c]+1):tau[c+1]]<-datanew[(tau[c]+1):tau[c+1]]-spline$y
+    }else{
+      datanew[(tau[c]+1):tau[c+1]]<-datanew[(tau[c]+1):tau[c+1]]-mean(datanew[(tau[c]+1):tau[c+1]])
+    }
+
+
+
+  }
+  datanew<-changetometa.2(as.data.frame(datanew),changepoints)
+  colnames(datanew)<-"orig"
+  if (changes>=1){
+
+    homo2<-homogen.var(datanew)
+    if (!homo2){
+
+      plates <-
+        unique(unlist(lapply(strsplit(
+          rownames(datanew), "_"
+        ), function(x) {
+          return(x[2])
+        })))
+
+      met.plates.sd <- c()
+      print(plates)
+      for (j in plates) {
+        print(paste("plate:", j))
+        grep.plates <-
+          grep(paste("plate", "_", j, "_", sep = ""), row.names(datanew))
+        sd.plate    <-  sd(datanew[grep.plates,], na.rm = T)
+
+        print(paste("SD PLATE:", sd.plate))
+
+        if(!is.na(sd.plate) & sd.plate == 0) {
+          sd.plate <- NA
+        }
+
+        met.plates.sd <-
+          c(met.plates.sd, rep(sd.plate, length(grep.plates)))
+      }
+
+      # Normalize
+      datanew[["norm."]] <- datanew[["orig"]] / met.plates.sd
+      if (sum(is.na(datanew[["norm."]]))>0){
+
+        #p.wn <- Box.test(datanew[["orig"]], lag=20, type = "Ljung-Box")$p.value
+        #pass.wn<- p.wn>0.05
+        return(datanew[["orig"]])
+
+      }
+
+      #p.wn <- Box.test(datanew[["norm."]], lag=20, type = "Ljung-Box")$p.value
+      #pass.wn<- p.wn>0.05
+
+      return(datanew[["norm."]])
+    }
+  }
+  #p.wn <- Box.test(datanew[["orig"]], lag=20, type = "Ljung-Box")$p.value
+  #pass.wn<- p.wn>0.05
+  return(datanew[["orig"]])
+
+}
+#############
+#'@noRd
+#'@importFrom stats smooth.spline
+dfwhitenoise<-function(data){
+  t<-n_distinct(data)
+  l<-min(c(t-1,40))
+  value<-numeric(length = l-1)
+  for (i in 2:l){
+    spline<-smooth.spline(data,df=i)
+    epsilon<-data-spline$y
+    auto<-autocorrelations(epsilon)
+    auto.iid<-whiteNoiseTest(auto,h0="iid",x=epsilon)
+    value[i-1]<-auto.iid[["test"]][3]
+  }
+  df<-which.max(value)+1
+  return(df)
 }
 
 ########
@@ -153,5 +243,10 @@ fkPELT<-function(data,knots){
   cp[[n+1]]<-cp[[n+1]][-1]
   return(cp[[n+1]])
 }
+
+
+
+
+
 
 
