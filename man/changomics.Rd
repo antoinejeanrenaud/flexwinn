@@ -19,7 +19,8 @@ changomics(data, max.knots = 10, debug = T, runall = F)
 the corrected dataframe of metabolite(s).
 }
 \description{
-A function for metabolite correction
+A function for metabolite correction. This function first estimate the change points
+(jumps) and then correct each different segment by detrending and normalizing when needed.
 }
 \examples{
 met1<-rnorm(1000)

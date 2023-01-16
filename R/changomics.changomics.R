@@ -1,7 +1,8 @@
 
 #####
 #' @title changomics
-#' @description A function for metabolite correction
+#' @description A function for metabolite correction. This function first estimate the change points
+#'  (jumps) and then correct each different segment by detrending and normalizing when needed.
 #' @param data input dataset of metabolites as data frame.
 #' @param max.knots Maximum number of knots as % .
 #' @param debug Debug mode. Defaults to TRUE

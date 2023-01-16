@@ -13,7 +13,10 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-
+Changomics is a very simple package to use. load the included data set to try it.
 ```{r setup}
 library(changomics)
+data(met.df)
+corrected<-changomics(as.data.frame(met.df))
 ```
+You directly end up with the corrected data frame of all metabolites (here 2 simulated metabolites only)

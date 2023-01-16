@@ -5,7 +5,7 @@
 <!-- badges: end -->
 
 The goal of changomics is to normalize a dataset of metabolites that has been distorted during the 
-data gathering. It detects automatically through dynamic programming the changepoints in ditribution and then normalize, residualize and detrend the time series of metabolites.
+data gathering. It detects automatically through dynamic programming the change points in time series and then normalize, residualize and detrend the time series of metabolites.
 
 ## Installation
 
@@ -22,6 +22,10 @@ This is a basic example which shows you how to solve a common problem:
 
 ``` r
 library(changomics)
-## basic example code
+# Load the data of metabolites
+data(met.df)
+# Use changomics to correct the metabolites
+corrected<-changomics(as.data.frame(met.df))
+
 ```
 
