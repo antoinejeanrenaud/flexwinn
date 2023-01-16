@@ -4,9 +4,7 @@
 #' @description A function for metabolite correction. This function first estimate the change points
 #'  (jumps) and then correct each different segment by detrending and normalizing when needed.
 #' @param data input dataset of metabolites as data frame.
-#' @param max.knots Maximum number of knots as % .
-#' @param debug Debug mode. Defaults to TRUE
-#' @param runall Apply correction regrdless of white noise test.Defaults to FALSE.
+#'
 #' @return the corrected dataframe of metabolite(s).
 #' @import sarima
 #' @import splines
@@ -17,10 +15,7 @@
 #' met1<-rnorm(1000)
 #' changomics(as.data.frame(met1))
 
-changomics.2<-function(data,
-                     max.knots = 10,
-                     debug = T,
-                     runall = F){
+changomics.2<-function(data){
   if (!is.data.frame(data)){
     stop("data must be a data frame")
   }
@@ -51,7 +46,7 @@ changomics.2<-function(data,
     #Detrending
     changes<-length(changepoints)
     datanew<-data[[k]]
-    tau<-c(0,changepoints,length(data))
+    tau<-c(0,changepoints,length(data[[k]]))
     for (c in 1:(changes+1)){
       subset<-datanew[(tau[c]+1):tau[c+1]]
       size<-length(subset)
@@ -140,7 +135,7 @@ changetometa.2<-function(data,changepoints){
     }
   }
   colnam<-colnames(data)
-  ret<-as.data.frame(data)
+  ret<-as.data.frame(data[[1]])
   colnames(ret)<-colnam
   row.names(ret)<-names
   return(ret)

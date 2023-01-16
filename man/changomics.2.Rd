@@ -4,16 +4,10 @@
 \alias{changomics.2}
 \title{changomics.2}
 \usage{
-changomics.2(data, max.knots = 10, debug = T, runall = F)
+changomics.2(data)
 }
 \arguments{
 \item{data}{input dataset of metabolites as data frame.}
-
-\item{max.knots}{Maximum number of knots as \% .}
-
-\item{debug}{Debug mode. Defaults to TRUE}
-
-\item{runall}{Apply correction regrdless of white noise test.Defaults to FALSE.}
 }
 \value{
 the corrected dataframe of metabolite(s).
