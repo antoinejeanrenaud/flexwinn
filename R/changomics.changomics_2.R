@@ -46,13 +46,80 @@ changomics.2<-function(data,
     changepoints<-fkPELT(data[[k]],knots = knots)
     colname<-colnames(data[k])
     if (is.null(colname)){colnames(data[k])<-paste("met_",k,sep="")}
-    # df<-changetometa(data[k],changepoints)
-    # winnresult<-winn(df,group.var = "plate",
-    #                  max.knots = max.knots,
-    #                  debug = debug,
-    #                  runall = runall)
-    ch.result<-normalize(data[[k]],changepoints)
-    corrected[[k]]<-ch.result
+    #############
+    #Detrending
+    changes<-length(changepoints)
+    datanew<-data[[k]]
+    tau<-c(0,changepoints,length(data))
+    for (c in 1:(changes+1)){
+      subset<-datanew[(tau[c]+1):tau[c+1]]
+      size<-length(subset)
+      if (size>=5){
+        pvalue<-Box.test(subset,lag=floor(length(subset)/2),type="Ljung-Box")$p.value
+        if (!is.na(pvalue) & pvalue<0.05){
+        dfw<-dfwhitenoise(subset)
+        spline<-smooth.spline(subset,df=dfw)
+        datanew[(tau[c]+1):tau[c+1]]<-datanew[(tau[c]+1):tau[c+1]]-spline$y
+      }else{
+        datanew[(tau[c]+1):tau[c+1]]<-datanew[(tau[c]+1):tau[c+1]]-mean(datanew[(tau[c]+1):tau[c+1]])
+      }
+
+      }else{
+        datanew[(tau[c]+1):tau[c+1]]<-datanew[(tau[c]+1):tau[c+1]]-mean(datanew[(tau[c]+1):tau[c+1]])
+      }
+    }
+    #######
+    #normalizing
+    datanew<-changetometa.2(as.data.frame(datanew),changepoints)
+    colnames(datanew)<-"orig"
+    if (changes>=1){
+
+      homo2<-homogen.var.2(datanew)
+      if (!homo2){
+
+        plates <-
+          unique(unlist(lapply(strsplit(
+            rownames(datanew), "_"
+          ), function(x) {
+            return(x[2])
+          })))
+
+        met.plates.sd <- c()
+        print(plates)
+        for (j in plates) {
+          print(paste("plate:", j))
+          grep.plates <-
+            grep(paste("plate", "_", j, "_", sep = ""), row.names(datanew))
+          sd.plate    <-  sd(datanew[grep.plates,], na.rm = T)
+
+          print(paste("SD PLATE:", sd.plate))
+
+          if(!is.na(sd.plate) & sd.plate == 0) {
+            sd.plate <- NA
+          }
+
+          met.plates.sd <-
+            c(met.plates.sd, rep(sd.plate, length(grep.plates)))
+        }
+
+        # Normalize
+        datanew[["norm"]] <- datanew[["orig"]] / met.plates.sd
+        if (sum(is.na(datanew[["norm"]]))>0){
+
+          dataret<-datanew[["orig"]]
+
+        }
+
+        dataret<-datanew[["norm"]]
+      }
+    }
+
+    dataret<-datanew[["orig"]]
+
+
+  #######
+  #return result
+    corrected[[k]]<-dataret
   }
 
   return(corrected)
@@ -77,78 +144,73 @@ changetometa.2<-function(data,changepoints){
   row.names(ret)<-names
   return(ret)
 }
-normalize<-function(data,changepoints){
-  changes<-length(changepoints)
-  datanew<-data
-  tau<-c(0,changepoints,length(data))
-  for (c in 1:(changes+1)){
-    subset<-datanew[(tau[c]+1):tau[c+1]]
-    size<-length(subset)
+# normalize<-function(data,changepoints){
+#   changes<-length(changepoints)
+#   datanew<-data
+#   tau<-c(0,changepoints,length(data))
+#   for (c in 1:(changes+1)){
+#     subset<-datanew[(tau[c]+1):tau[c+1]]
+#     size<-length(subset)
+#
+#     if (size>=5){
+#       dfw<-dfwhitenoise(subset)
+#       spline<-smooth.spline(subset,df=dfw)
+#       datanew[(tau[c]+1):tau[c+1]]<-datanew[(tau[c]+1):tau[c+1]]-spline$y
+#     }else{
+#       datanew[(tau[c]+1):tau[c+1]]<-datanew[(tau[c]+1):tau[c+1]]-mean(datanew[(tau[c]+1):tau[c+1]])
+#     }
+#
+#
+#
+#   }
+#   datanew<-changetometa.2(as.data.frame(datanew),changepoints)
+#   colnames(datanew)<-"orig"
+#   if (changes>=1){
+#
+#     homo2<-homogen.var.2(datanew)
+#     if (!homo2){
+#
+#       plates <-
+#         unique(unlist(lapply(strsplit(
+#           rownames(datanew), "_"
+#         ), function(x) {
+#           return(x[2])
+#         })))
+#
+#       met.plates.sd <- c()
+#       print(plates)
+#       for (j in plates) {
+#         print(paste("plate:", j))
+#         grep.plates <-
+#           grep(paste("plate", "_", j, "_", sep = ""), row.names(datanew))
+#         sd.plate    <-  sd(datanew[grep.plates,], na.rm = T)
+#
+#         print(paste("SD PLATE:", sd.plate))
+#
+#         if(!is.na(sd.plate) & sd.plate == 0) {
+#           sd.plate <- NA
+#         }
+#
+#         met.plates.sd <-
+#           c(met.plates.sd, rep(sd.plate, length(grep.plates)))
+#       }
+#
+#       # Normalize
+#       datanew[["norm"]] <- datanew[["orig"]] / met.plates.sd
+#       if (sum(is.na(datanew[["norm"]]))>0){
+#
+#         return(datanew[["orig"]])
+#
+#       }
+#
+#       return(datanew[["norm"]])
+#     }
+#   }
+#
+#   return(datanew[["orig"]])
+#
+# }
 
-    if (size>=5){
-      dfw<-dfwhitenoise(subset)
-      spline<-smooth.spline(subset,df=dfw)
-      datanew[(tau[c]+1):tau[c+1]]<-datanew[(tau[c]+1):tau[c+1]]-spline$y
-    }else{
-      datanew[(tau[c]+1):tau[c+1]]<-datanew[(tau[c]+1):tau[c+1]]-mean(datanew[(tau[c]+1):tau[c+1]])
-    }
-
-
-
-  }
-  datanew<-changetometa.2(as.data.frame(datanew),changepoints)
-  colnames(datanew)<-"orig"
-  if (changes>=1){
-
-    homo2<-homogen.var(datanew)
-    if (!homo2){
-
-      plates <-
-        unique(unlist(lapply(strsplit(
-          rownames(datanew), "_"
-        ), function(x) {
-          return(x[2])
-        })))
-
-      met.plates.sd <- c()
-      print(plates)
-      for (j in plates) {
-        print(paste("plate:", j))
-        grep.plates <-
-          grep(paste("plate", "_", j, "_", sep = ""), row.names(datanew))
-        sd.plate    <-  sd(datanew[grep.plates,], na.rm = T)
-
-        print(paste("SD PLATE:", sd.plate))
-
-        if(!is.na(sd.plate) & sd.plate == 0) {
-          sd.plate <- NA
-        }
-
-        met.plates.sd <-
-          c(met.plates.sd, rep(sd.plate, length(grep.plates)))
-      }
-
-      # Normalize
-      datanew[["norm."]] <- datanew[["orig"]] / met.plates.sd
-      if (sum(is.na(datanew[["norm."]]))>0){
-
-        #p.wn <- Box.test(datanew[["orig"]], lag=20, type = "Ljung-Box")$p.value
-        #pass.wn<- p.wn>0.05
-        return(datanew[["orig"]])
-
-      }
-
-      #p.wn <- Box.test(datanew[["norm."]], lag=20, type = "Ljung-Box")$p.value
-      #pass.wn<- p.wn>0.05
-
-      return(datanew[["norm."]])
-    }
-  }
-  #p.wn <- Box.test(datanew[["orig"]], lag=20, type = "Ljung-Box")$p.value
-  #pass.wn<- p.wn>0.05
-  return(datanew[["orig"]])
-
-}
 #############
 #'@noRd
 #'@importFrom stats smooth.spline
@@ -159,90 +221,57 @@ dfwhitenoise<-function(data){
   for (i in 2:l){
     spline<-smooth.spline(data,df=i)
     epsilon<-data-spline$y
-    auto<-autocorrelations(epsilon)
-    auto.iid<-whiteNoiseTest(auto,h0="iid",x=epsilon)
-    value[i-1]<-auto.iid[["test"]][3]
+    value[i-1]<-Box.test(epsilon,lag=15,type="Ljung-Box")$p.value
   }
   df<-which.max(value)+1
   return(df)
 }
 
-########
-#Cost of segment calculator with fixed knots
-#' @noRd
-#' @importFrom stats lm
-fksplinecost<-function(data,knots,index1=1,index2=length(data)){
-  size<-length(data)
-  if (size==1){
-    return(0)
-  }
-  if (size<5){
-    sd<-sd(data)
-    mu<-mean(data)
-    neglog<-2*(sum((data-mu)^2/(2*sd^2))+size*log(sd*sqrt(2*pi)))
-    if (sd==0){
-      return(0)
-    }else{
-      return(neglog)
-    }
-  }
-  cov<-index1:index2
-  newknots<-knots[knots<index2& knots>index1]
-  spline<-lm(data~ns(cov,knots = newknots,intercept=TRUE))
-  mu<-spline$fitted.values
-  sd<-sd(data-mu)
-  if (sd==0){
-    return(0)
-  }
-  neglog<-2*(sum((data-mu)^2/(2*sd^2))+size*log(sd*sqrt(2*pi)))
-  if (size<15){
-    return(neglog) }else{
-      return(neglog)
-    }
+homogen.var.2 <- function(met.dat)
+{
+  # Create a vector to store results of homogeneity variance test
+  is.hom.var <- FALSE
 
-}
+    met.df <-  met.dat["orig"]
 
-########
-#Estimating changepoints in time series with fixed knots
-fkPELT<-function(data,knots){
-  n<-length(data)
-  f<-numeric(length = n+1)
-  f[1]<- -3*log(300)
-  cp<-rep(list(numeric()),n+1)
-  R<-rep(list(numeric()),n)
-  R[[1]]<-0
+    if(sd(met.dat[,1], na.rm=T) == 0){
+      is.hom.var <- TRUE}
+    else{
+      met.df[["group"]] <- sapply(rownames(met.df),
+                                  function(x) {
+                                    strsplit(x, "_")[[1]][2]
+                                  })
 
+      # Shapiro test of normality
+      x <- shapiro.test(met.df[, 1])
 
-  for (t in 1:n){
-    m<-length(R[[t]])
-    neglog<-numeric(m)
-    for (r in 1:m){
-      neglog[r]<-fksplinecost(data[(R[[t]][r]+1):t],knots=knots,index1=R[[t]][r]+1,index2=t)
-    }
-    stat<-numeric(m)
-    for (r in 1:m){
-      tot<-f[R[[t]][r]+1]+3*log(300)+neglog[r]
-      stat[r]<-tot
-
-    }
-    f[t+1]<-min(stat)
-    t1<-R[[t]][which.min(stat)]
-    cp[[t+1]]<-c(cp[[t1+1]],t1)
-    for (r in 1:m){
-
-      tot<-f[R[[t]][r]+1]+log(300)+neglog[r]
-      if (tot<=f[t+1]& t<n){
-
-        R[[t+1]]<-c(R[[t+1]],R[[t]][r])
+      # If normality  use Levine test for homogeneity of variance
+      # Else us Fligner-Killeen test
+      p.val <- c()
+      if (x$p.value < 0.05) {
+        # no normality : Fligner-Killeen
+        flig.tst <-
+          fligner.test(as.formula(paste("orig", " ~ group", sep = "")), data = met.df)
+        p.val <- flig.tst$p.value
+      } else{
+        # Change this once "car" library is available
+        lev.tst <- levene.test(met.df[, 1],
+                               met.df[, "group"],
+                               location = "median",
+                               correction.method = "zero.correction")
+        p.val <- lev.tst$p.value
+      }
+      if (p.val > 0.05) {
+        is.hom.var<- TRUE
       }
     }
-    if (t<n&t>39){
-      R[[t+1]]<-c(R[[t+1]],t-19)}
-  }
 
-  cp[[n+1]]<-cp[[n+1]][-1]
-  return(cp[[n+1]])
+
+  return(is.hom.var)
 }
+
+
+
 
 
 

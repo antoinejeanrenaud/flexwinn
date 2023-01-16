@@ -635,8 +635,6 @@ atf.mgcv.spline <- function(formula, data, df.range, spl.type="cr", boxlag=20, D
 
   if(DEBUG){
     print(paste("Best param:", best.k))
-    plot(expl, data[[fmla$fmla.out]], col="grey", xlab=expl.str, ylab=fmla$fmla.out)
-    lines(expl, best.fit$fitted.values, col="red")
   }
 
   if(max(box.pvals) < 0.05){warning("P-value relative to best df < 0.05")}
@@ -724,8 +722,6 @@ normalize.variance <- function(met.dat, vars, summary.transf, group.var, final=F
     met.dat[[paste("norm.", i, sep = "")]] <- met.dat[[i]] / met.plates.sd
     str(met.dat)
     print(i)
-    plot(met.dat[[i]], type="l")
-    plot(met.dat[[paste("norm.", i, sep = "")]], type="l")
 
     # Update summary
     print(summary.transf)
@@ -752,7 +748,7 @@ normalize.variance <- function(met.dat, vars, summary.transf, group.var, final=F
 # WiNN
 ########
 #' @title WiNN in development
-#'
+#' @noRd
 #' @description A function for metabolite correction
 #' @param input.dat input dataset as data frame or matrix
 #' @param group.var Grouping variable. Defaults to "plate".
@@ -1253,6 +1249,7 @@ winn <-
 
     col.names.sel <- c()
     corrected.df <- met.dat
+    print(met.dat)
     print(summary.transf$metabolite)
 
     for (i in summary.transf$metabolite) {
@@ -1306,7 +1303,6 @@ winn <-
       print("CHECKPOINT")
 
     } # Closes for (i in summary.transf$metabolite)
-
     corrected.df <- corrected.df[summary.transf$metabolite]
     print(names(corrected.df))
 
