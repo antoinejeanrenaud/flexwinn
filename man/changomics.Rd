@@ -9,14 +9,17 @@ changomics(data, graph = FALSE)
 \arguments{
 \item{data}{input dataset of metabolites as data frame.}
 
-\item{graph}{TRUE or FALSE. If TRUE will display the graph of uncorrected data with estimated change points and correction}
+\item{graph}{TRUE or FALSE. If TRUE will display the graph of uncorrected
+data with estimated change points and correction}
 }
 \value{
 the corrected dataframe of metabolite(s).
 }
 \description{
-A function for metabolite correction. This function first estimate the change points
-(jumps) and then correct each different segment by detrending and normalizing when needed.
+A function for metabolite correction.
+This function first estimate the change points
+(jumps) and then correct each different segment
+by detrending and normalizing when needed.
 }
 \examples{
 met1<-rnorm(200)
