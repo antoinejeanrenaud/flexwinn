@@ -17,6 +17,6 @@ A function for metabolite correction. This function first estimate the change po
 (jumps) and then correct each different segment by detrending and normalizing when needed.
 }
 \examples{
-met1<-rnorm(1000)
-changomics(as.data.frame(met1))
+met1<-rnorm(200)
+changomics.2(as.data.frame(met1))
 }

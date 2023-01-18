@@ -1,14 +1,13 @@
 Package: changomics
-Title: Find Changepoints in Time Series and Normalize
+Title: Find Change Points in Time Series and Normalize
 Version: 0.0.0.9000
 Authors@R: 
     person("Antoine", "Jeanrenaud", , "antoine2104@hotmail.com", role = c("aut", "cre"))
-Description: Allow the user to use the 'changomics' function which find the changepoints in
+Description: Allow the user to use the 'changomics' function which find the change points in
   the time series of a or many metabolites. The function then normalize the signal to recover an approximation
   of the original non distorted time series.
 Imports:
   dplyr,
-  gam,
   hwwntest,
   lawstat,
   mgcv,

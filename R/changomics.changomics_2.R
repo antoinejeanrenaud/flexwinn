@@ -4,7 +4,8 @@
 #' @description A function for metabolite correction. This function first estimate the change points
 #'  (jumps) and then correct each different segment by detrending and normalizing when needed.
 #' @param data input dataset of metabolites as data frame.
-#'
+#' @param graph TRUE or FALSE. If TRUE will display the graph of uncorrected data with estimated change points and correction
+
 #' @return the corrected dataframe of metabolite(s).
 #' @import sarima
 #' @import splines
@@ -12,10 +13,10 @@
 #' @importFrom stats na.omit
 #' @export
 #' @examples
-#' met1<-rnorm(1000)
-#' changomics(as.data.frame(met1))
+#' met1<-rnorm(200)
+#' changomics.2(as.data.frame(met1))
 
-changomics.2<-function(data){
+changomics.2<-function(data,graph=FALSE){
   if (!is.data.frame(data)){
     stop("data must be a data frame")
   }
@@ -47,6 +48,7 @@ changomics.2<-function(data){
     changes<-length(changepoints)
     datanew<-data[[k]]
     tau<-c(0,changepoints,length(data[[k]]))
+    pred<-NULL
     for (c in 1:(changes+1)){
       subset<-datanew[(tau[c]+1):tau[c+1]]
       size<-length(subset)
@@ -55,15 +57,35 @@ changomics.2<-function(data){
         if (!is.na(pvalue) & pvalue<0.05){
         dfw<-dfwhitenoise(subset)
         spline<-smooth.spline(subset,df=dfw)
-        datanew[(tau[c]+1):tau[c+1]]<-datanew[(tau[c]+1):tau[c+1]]-spline$y
+        pred<-c(pred,spline$y)
       }else{
-        datanew[(tau[c]+1):tau[c+1]]<-datanew[(tau[c]+1):tau[c+1]]-mean(datanew[(tau[c]+1):tau[c+1]])
+        pred<-c(pred,rep(mean(subset),size))
       }
 
       }else{
-        datanew[(tau[c]+1):tau[c+1]]<-datanew[(tau[c]+1):tau[c+1]]-mean(datanew[(tau[c]+1):tau[c+1]])
+        pred<-c(pred,rep(mean(subset),size))
       }
     }
+    if (k==1){
+    if (graph==TRUE){
+      concentration<-data[[k]]
+      plot(concentration,col="darkgray",
+           xlab="reading sequence",ylab="uncorrected signal",
+           main="uncorrected signal + correction and change points",
+           type="l")
+      for (l in changepoints) {
+        abline(v=l,col="red",lty=2)
+      }
+      lines(1:length(data[[k]]),pred,col="red")
+      legend(
+        "bottomleft",
+        lty = c(1, 1),
+        col = c("darkgrey", "red"),
+        legend = c("Uncorrected", "Correction"),
+        cex=0.5
+      )
+    }}
+    datanew<-datanew-pred
     #######
     #normalizing
     datanew<-changetometa.2(as.data.frame(datanew),changepoints)
@@ -81,14 +103,14 @@ changomics.2<-function(data){
           })))
 
         met.plates.sd <- c()
-        print(plates)
+
         for (j in plates) {
-          print(paste("plate:", j))
+
           grep.plates <-
             grep(paste("plate", "_", j, "_", sep = ""), row.names(datanew))
           sd.plate    <-  sd(datanew[grep.plates,], na.rm = T)
 
-          print(paste("SD PLATE:", sd.plate))
+
 
           if(!is.na(sd.plate) & sd.plate == 0) {
             sd.plate <- NA

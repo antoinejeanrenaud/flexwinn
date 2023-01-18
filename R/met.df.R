@@ -13,9 +13,10 @@
 #' @keywords dataset
 #'
 #' @examples
+#' \dontrun{
 #' data(met.df)
 #' met.df<-as.data.frame(met.df)
-#' corrected<-changomics.2(met.df)
-#'
+#' corrected<-changomics(met.df)
+#'}
 #'
 "met.df"

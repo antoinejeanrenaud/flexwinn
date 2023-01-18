@@ -14,12 +14,12 @@
 #' @importFrom stats na.omit
 #' @export
 #' @examples
-#' met1<-rnorm(1000)
+#' met1<-rnorm(200)
 #' changomics(as.data.frame(met1))
 
 changomics<-function(data,
                      max.knots = 10,
-                     debug = T,
+                     debug = F,
                      runall = F){
   #check if data is a data frame. If not STOP algo.
   if (!is.data.frame(data)){

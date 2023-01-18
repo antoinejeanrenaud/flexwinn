@@ -4,7 +4,7 @@
 \alias{changomics}
 \title{changomics}
 \usage{
-changomics(data, max.knots = 10, debug = T, runall = F)
+changomics(data, max.knots = 10, debug = F, runall = F)
 }
 \arguments{
 \item{data}{input dataset of metabolites as data frame.}
@@ -23,6 +23,6 @@ A function for metabolite correction. This function first estimate the change po
 (jumps) and then correct each different segment by detrending and normalizing when needed.
 }
 \examples{
-met1<-rnorm(1000)
+met1<-rnorm(200)
 changomics(as.data.frame(met1))
 }

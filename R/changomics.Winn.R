@@ -88,13 +88,12 @@ test.wn <- function(x, box.test.lag = 20) {
       p.box <= p) {
     p.ret <- p.box
   }
-  print(" ===> Selected p.box")
 
   if (is.na(p.ret)) {
     stop("WN test cannot applied, length of series < 16")
   }
 
-  print(paste("WM test p-value=", p.ret, sep=""))
+
   return(p.ret)
 }
 
@@ -551,8 +550,6 @@ validate.formula <- function(form, DEBUG=FALSE){
 #' @importFrom graphics lines
 atf.mgcv.spline <- function(formula, data, df.range, spl.type="cr", boxlag=20, DEBUG=FALSE){
 
-  # Print function call
-  print(match.call())
 
   # Validate formula
   fmla <- validate.formula(formula, DEBUG)
@@ -623,8 +620,7 @@ atf.mgcv.spline <- function(formula, data, df.range, spl.type="cr", boxlag=20, D
       if(pvalue >= max(box.pvals)){
         best.fit <- fit
         best.k   <- k
-        print(paste("Best k:", best.k))
-        print(paste("Best p:", pvalue))
+
       }
     }
     box.pvals <- c(box.pvals,pvalue)
@@ -652,10 +648,9 @@ normalize.variance <- function(met.dat, vars, summary.transf, group.var, final=F
   #########################################################
   # Step 1: Test for homogeneity of variance among plates #
   #########################################################
-  print("=> Testing homogeneity of variance and normalizing ...")
-  print(vars[1:10])
+
   met.dat <- met.dat[vars]
-  str(met.dat)
+
   plates <- unique(unlist(lapply(strsplit(rownames(met.dat), "_"), function(x) {
     return(x[2])
   })))
@@ -667,7 +662,7 @@ normalize.variance <- function(met.dat, vars, summary.transf, group.var, final=F
   }
   # Update status for metabs that pass hom. var.
   mets.pass.hom.var <- names(is.hom.var[is.hom.var])
-  print(mets.pass.hom.var)
+
   for(i in mets.pass.hom.var){
     if(final){
       summary.transf[summary.transf$metabolite == get.orig.met.name(i), "norm.detr"] <- FALSE
@@ -683,9 +678,8 @@ normalize.variance <- function(met.dat, vars, summary.transf, group.var, final=F
   # Get metabs that do not pass hom. var. test
   mets.no.hom.var <- names(is.hom.var[!is.hom.var])
 
-  print("mets.no.hom.var")
-  str(mets.no.hom.var)
-  print("===========")
+
+
   # Loop through the metabolites and normalize by sd of groups (e.g. "plates")
   plates <-
     unique(unlist(lapply(strsplit(
@@ -694,20 +688,19 @@ normalize.variance <- function(met.dat, vars, summary.transf, group.var, final=F
       return(x[2])
     })))
 
-  print("PLATES:")
-  str(plates)
+
 
   for (i in mets.no.hom.var) {
     met.plates.sd <- c()
     met.plates.mean<-c()
-    print(plates)
+
     for (j in plates) {
-      print(paste("plate:", j))
+
       grep.plates <-
         grep(paste(group.var, "_", j, "_", sep = ""), row.names(met.dat))
       sd.plate    <-  sd(met.dat[grep.plates, i], na.rm = T)
       mean.plate <- mean(met.dat[grep.plates, i], na.rm = T)
-      print(paste("SD PLATE:", sd.plate))
+
 
       if(!is.na(sd.plate) & sd.plate == 0) {
         sd.plate <- NA
@@ -720,23 +713,18 @@ normalize.variance <- function(met.dat, vars, summary.transf, group.var, final=F
 
     # Normalize
     met.dat[[paste("norm.", i, sep = "")]] <- met.dat[[i]] / met.plates.sd
-    str(met.dat)
-    print(i)
+
 
     # Update summary
-    print(summary.transf)
+
     if(final){
-      print("FINAL == TRUE")
+
       summary.transf[summary.transf$metabolite == get.orig.met.name(i), "norm.detr"] <-TRUE
-      print("****************")
-      print(summary.transf)
-      print("****************")
+
     }else{
-      print("FINAL == FALSE")
+
       summary.transf[summary.transf$metabolite == get.orig.met.name(i), "normalized"] <-TRUE
-      print("****************")
-      print(summary.transf)
-      print("****************")
+
     }
   }
 
@@ -767,38 +755,15 @@ winn <-
   function(input.dat,
            group.var = "plate",
            max.knots = 10,
-           debug = T,
+           debug = F,
            runall = F) {
 
-    #### FOR DEVELOPMENT ONLY ##############
-    if (FALSE) {
-      dir.pp <-
-        "/an/vital/vital200/QC/correction_gam_2020/JUNE_2020_replace_outliers/7_APPLY_TO_OTHER_DSETS/OTHER_DSETS/CVD_CACO"
-      input.dat      <-
-        get(load(paste(
-          dir.pp, "/cvdcaco_met_uncorrected.RData", sep = ""
-        )))
-      pp.dt               <-
-        get(load(paste(dir.pp, "/pp_no_outl.RData", sep = "")))
-      stdy.id <- "CVD_CACO_12152020"
-      group.var = "plate"
-      max.knots = 10
-      debug = T
-      runall = F
-    }
-    ###########################
 
-    print("Running WiNN with following parameters:")
-    print(paste("met.dat =", deparse(substitute(input.dat))))
-    print(paste("max.knots =", max.knots))
-    print(paste("debug =", debug))
-    print(paste("runall =", runall))
-    print("########################################")
 
     ################################
     # Validate input
     ################################
-    print("=> Validating input data...")
+
     met.dat <-
       tryCatch(
         validate.input(df = input.dat, group.name = group.var),
@@ -834,7 +799,7 @@ winn <-
     met.dat        <- norm.v$met.dat
     summary.transf <- norm.v$summary.transf
 
-    print(summary.transf)
+
 
     #############################################
     # Step 2:  Residualize by plate number
@@ -854,7 +819,7 @@ winn <-
       return(x[2])
     })))
 
-    print("=> Anova and residualization ...")
+
     metabs.to.anova.test <- c()
     for (i in as.character(summary.transf$metabolite)) {
       x <- summary.transf[as.character(summary.transf$metabolite) == i, ]
@@ -915,7 +880,7 @@ winn <-
       }
     } ## Closes "for (met in metabs.to.anova.test)"
 
-    print(paste(n.residualized, " metabolites have been residualized", sep=""))
+
 
     ##########################################################################
     # Step 4: WN test (first)
@@ -955,7 +920,7 @@ winn <-
     } ## Closes "for(i in ...)"
 
     # Test for WN
-    print("=> Testing for WN...")
+
     p.wn.tst <- sapply(metabs.to.wn.test, function(x) {
       ret <- NA; p <- NA
       p <- tryCatch({
@@ -999,15 +964,11 @@ winn <-
       names(is.wn.before.corr[!is.na(is.wn.before.corr) &
                                 is.wn.before.corr == FALSE])
 
-    print(paste(
-      "Number of metabolites not passing WN to be detrended:",
-      length(mets.to.correct)
-    ))
 
     # Perform a second PCA restricted to the metabs to be detrended
-    print("=> Running second PCA ...")
-    n.90.pc.after.corr <-
-      do.pca(res.norm.met.dt = met.dat[mets.to.correct])
+
+    n.90.pc.after.corr <-1
+      #do.pca(res.norm.met.dt = met.dat[mets.to.correct])
     if (debug) {
       print(paste("DBG 3 - number independent components among mets to correct:",
                   n.90.pc.after.corr
@@ -1044,7 +1005,6 @@ winn <-
     } ## Closes "for (i in mets.to.correct)"
 
     # Get  the metabs that pass WN test 1 and update summary transfer table
-    print(original.names)
     pass.wn.1 <- as.character(summary.transf$metabolite[!summary.transf$metabolite %in% original.names])
     summary.transf[summary.transf$metabolite %in% pass.wn.1, "pass.wn.1"] <- TRUE
     summary.transf[summary.transf$metabolite %in% pass.wn.1, "detrended"] <- FALSE
@@ -1090,7 +1050,7 @@ winn <-
     # main detrending loop
     ################################
     if (length(mets.to.correct) > 0) {
-      print("=> Detrending ")
+
 
       # Create a data frame to store the detrending best # of knots and
       # p-values
@@ -1101,8 +1061,7 @@ winn <-
       count <- 0
       count.met.plate <- 0
 
-      print("The following metabolites will be detrended:")
-      print(mets.to.correct)
+
 
       ###############################
       # Loop through the metabolites
@@ -1115,13 +1074,12 @@ winn <-
         # Extract the metabolite
         met.dt <- met.dat[met]
 
-        print("##########################")
-        print(paste("Detrending...", met))
+
 
         # Update count
         count <- count + 1
         if (count %% 20 == 0) {
-          print(count)
+
         }
 
         pvals           <- c()
@@ -1133,7 +1091,7 @@ winn <-
         # Loop through the plates
         for (i in plates) {
           count.met.plate <- count.met.plate + 1
-          print(paste("Plate ", i))
+
 
           # Subset to this plate
           plate.dt.met <- met.dt[grep(paste(group.var, "_", i, "_", sep = ""),
@@ -1141,8 +1099,8 @@ winn <-
 
           # OD!! add acf test to see if plate needs to be detrended
           plate.wn <- Box.test(plate.dt.met, lag=round(length(plate.dt.met)/2, digits=0), type = "Ljung-Box")$p.value
-          print("!!!!###!!!! plate.wn=")
-          print(plate.wn)
+
+
 
 
           # Run the knots optimization function
@@ -1156,8 +1114,8 @@ winn <-
             log.detrend[count.met.plate, 2] <- paste(i,":NA:NA")
           }else{
             n.stop <- (dim(mydf)[1]*max.knots) %/% 100 # <= the max number of knots
-            print(paste("Dim plate: ", dim(mydf)[1], "; Knots: 3 - ", n.stop, sep=""))
-            spl.fit <- atf.mgcv.spline(y ~ bs(x), data=mydf, 3:n.stop, DEBUG=TRUE)
+
+            spl.fit <- atf.mgcv.spline(y ~ bs(x), data=mydf, 3:n.stop, DEBUG=FALSE)
 
             # append to pred.trend
             pred.trend <- c(pred.trend, spl.fit$best.fit$fitted.values)
@@ -1186,7 +1144,7 @@ winn <-
         # Per Olga: test again for homog. variance and if
         # does not pass, normalize again
         ###################################################
-        print(summary.transf)
+
         final.n.v <- normalize.variance(met.dat = met.dat,
                                         vars = corr.met,
                                         group.var=group.var,
@@ -1201,8 +1159,8 @@ winn <-
 
         summary.transf <- final.n.v$summary.transf
 
-        str(summary.transf)
-        print(summary.transf)
+
+
 
         # Get the white noise test p-value
         p.wn <- Box.test(z, lag=min(length(z),20), type = "Ljung-Box")$p.value
@@ -1219,7 +1177,7 @@ winn <-
         # Finally update status
         passwn2 <- p.wn > p.thr.after.corr
         summary.transf[summary.transf$metabolite %in% met.original, "pass.wn.2"] <- passwn2
-        print(summary.transf)
+
 
 
       } # Closes "for(met in ...)"
@@ -1249,7 +1207,6 @@ winn <-
 
     col.names.sel <- c()
     corrected.df <- met.dat
-    print(met.dat)
     print(summary.transf$metabolite)
 
     for (i in summary.transf$metabolite) {
