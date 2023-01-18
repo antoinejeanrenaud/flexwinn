@@ -1,11 +1,11 @@
-
-#####
 #' @title changomics
-#' @description A function for metabolite correction. This function first estimate the change points
-#'  (jumps) and then correct each different segment by detrending and normalizing when needed.
+#' @description A function for metabolite correction.
+#' This function first estimate the change points
+#'  (jumps) and then correct each different segment
+#'  by detrending and normalizing when needed.
 #' @param data input dataset of metabolites as data frame.
-#' @param graph TRUE or FALSE. If TRUE will display the graph of uncorrected data with estimated change points and correction
-
+#' @param graph TRUE or FALSE. If TRUE will display the graph of uncorrected
+#' data with estimated change points and correction
 #' @return the corrected dataframe of metabolite(s).
 #' @import sarima
 #' @import splines
@@ -29,14 +29,18 @@ changomics<-function(data,graph=FALSE){
     }
   }
   if (NA_present){
-    warning("There is(are) NA value(s) in the data frame, na.omit() removed the rows containing NA(s).
-            recommended-> remove Na's yourself to not remove a full row")
     data<-na.omit(data)
+    if (nrow(data)>0){
+    warning("There is(are) NA value(s) in the data frame, na.omit()
+    removed the rows containing NA(s).
+            recommended-> remove Na's yourself to not remove a full row")
+      }
+
   }
   if (nrow(data)==0){
-    stop("All rows have been removed because there were Na's in each row: remove yourself Na's and run algo
-         for one metabolites at a time")
-  }
+    stop("All rows have been removed because there were Na's in each row:
+    remove yourself Na's and run algo
+         for one metabolites at a time")}
   corrected<-data
   for (k in 1:dim(data)[2]){
     knots<-seq(1,length(data[[k]]),length.out=floor(length(data[[k]])/60)+2)
@@ -55,7 +59,8 @@ changomics<-function(data,graph=FALSE){
       subset<-datanew[(tau[c]+1):tau[c+1]]
       size<-length(subset)
       if (size>=5){
-        pvalue<-Box.test(subset,lag=floor(length(subset)/2),type="Ljung-Box")$p.value
+        pvalue<-Box.test(subset,lag=floor(length(subset)/2),
+                         type="Ljung-Box")$p.value
         if (!is.na(pvalue) & pvalue<0.05){
         dfw<-dfwhitenoise(subset)
         spline<-smooth.spline(subset,df=dfw)
@@ -110,7 +115,7 @@ changomics<-function(data,graph=FALSE){
 
           grep.plates <-
             grep(paste("plate", "_", j, "_", sep = ""), row.names(datanew))
-          sd.plate    <-  sd(datanew[grep.plates,], na.rm = T)
+          sd.plate    <-  sd(datanew[grep.plates,], na.rm = TRUE)
 
 
 
@@ -190,7 +195,7 @@ homogen.var.2 <- function(met.dat)
 
     met.df <-  met.dat["orig"]
 
-    if(sd(met.dat[,1], na.rm=T) == 0){
+    if(sd(met.dat[,1], na.rm=TRUE) == 0){
       is.hom.var <- TRUE}
     else{
       met.df[["group"]] <- sapply(rownames(met.df),
@@ -204,10 +209,12 @@ homogen.var.2 <- function(met.dat)
       # If normality  use Levine test for homogeneity of variance
       # Else us Fligner-Killeen test
       p.val <- c()
+      print(x$p.value)
       if (x$p.value < 0.05) {
         # no normality : Fligner-Killeen
         flig.tst <-
-          fligner.test(as.formula(paste("orig", " ~ group", sep = "")), data = met.df)
+          fligner.test(as.formula(paste("orig", " ~ group", sep = "")),
+                       data = met.df)
         p.val <- flig.tst$p.value
       } else{
         # Change this once "car" library is available
@@ -235,7 +242,8 @@ fksplinecost<-function(data,knots,index1=1,index2=length(data)){
   if (size==1){
     return(0)
   }
-  #if size is too small, we do not fit a spline we just use the mean as an estimate.
+  #if size is too small, we do not fit a spline
+  #we just use the mean as an estimate.
   if (size<5){
     sd<-sd(data)
     mu<-mean(data)
@@ -248,15 +256,18 @@ fksplinecost<-function(data,knots,index1=1,index2=length(data)){
     }
   }
   cov<-index1:index2
-  newknots<-knots[knots<index2& knots>index1] #we take only the knots that are inside both start index and end index
-  spline<-lm(data~ns(cov,knots = newknots,intercept=TRUE)) # we estimate the moving mean (drift) with a spline
+  newknots<-knots[knots<index2& knots>index1]
+  # We take only the knots that are inside both start index and end index
+  spline<-lm(data~ns(cov,knots = newknots,intercept=TRUE))
+  # We estimate the moving mean (drift) with a spline
   mu<-spline$fitted.values
   sd<-sd(data-mu) #from this estimated moving mean we can estimate the sd
   # If sd is too small we return 0 cost
   if (sd<=1e-5){
     return(0)
   }
-  neglog<-2*(sum((data-mu)^2/(2*sd^2))+size*log(sd*sqrt(2*pi))) #log likelihood of the segment supposing it is close to a
+  neglog<-2*(sum((data-mu)^2/(2*sd^2))+size*log(sd*sqrt(2*pi)))
+  #log likelihood of the segment supposing it is close to a
   #normal distribution (usually the case with metabolomics data set)
   return(neglog)
 
@@ -266,7 +277,8 @@ fksplinecost<-function(data,knots,index1=1,index2=length(data)){
 
 
 ########
-#Estimating changepoints in time series (with drifts and jumps) with fixed knots predefined
+#Estimating changepoints in time series (with drifts and jumps)
+# with fixed knots predefined
 #This algo is PELT algorithm but with a slight modification in the pruning and
 #the cost of a segement as defined with the previous function "fksplinecost"
 fkPELT<-function(data,knots){
@@ -274,7 +286,8 @@ fkPELT<-function(data,knots){
   if (is.null(data)){stop("data cannot be NULL in fkPELT")}
   n<-length(data)
   f<-numeric(length = n+1)
-  f[1]<- -3*log(300) # 3*log(n) is the penalty constant tha we use in the PELT algorithm
+  f[1]<- -3*log(300) # 3*log(n) is the penalty constant tha we use
+                     #in the PELT algorithm
   cp<-rep(list(numeric()),n+1)
   R<-rep(list(numeric()),n)
   R[[1]]<-0
@@ -284,7 +297,8 @@ fkPELT<-function(data,knots){
     m<-length(R[[t]])
     neglog<-numeric(m)
     for (r in 1:m){
-      neglog[r]<-fksplinecost(data[(R[[t]][r]+1):t],knots=knots,index1=R[[t]][r]+1,index2=t)
+      neglog[r]<-fksplinecost(data[(R[[t]][r]+1):t],
+                              knots=knots,index1=R[[t]][r]+1,index2=t)
     }
     stat<-numeric(m)
     for (r in 1:m){
@@ -298,7 +312,8 @@ fkPELT<-function(data,knots){
     cp[[t+1]]<-c(cp[[t1+1]],t1)
     for (r in 1:m){
 
-      tot<-f[R[[t]][r]+1]+log(300)+neglog[r]  #Here we have the pruning which is amplified by this "log(300)"
+      tot<-f[R[[t]][r]+1]+log(300)+neglog[r]
+      #Here we have the pruning which is amplified by this "log(300)"
       #, this makes the method a lot faster but a little bit less accurate
       if (tot<=f[t+1]& t<n){
 
