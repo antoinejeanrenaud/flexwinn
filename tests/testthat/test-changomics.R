@@ -14,7 +14,7 @@ test_that("changomics works", {
   expect_error(changomics(met1))
   met1<-rep(15,1000)
   met1<-as.data.frame(met1)
-  expect_identical(changomics(met1),met1)
+  expect_identical(changomics(met1),met1-15)
   set.seed(333)
   met1<-c(rnorm(200),rnorm(200,sd=2)+5+seq(0,3,length.out=200))
   met1<-as.data.frame(met1)

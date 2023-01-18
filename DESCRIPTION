@@ -8,12 +8,9 @@ Description: Allow the user to use the 'changomics' function which find the chan
   of the original non distorted time series.
 Imports:
   dplyr,
-  hwwntest,
   lawstat,
-  mgcv,
   sarima,
-  splines,
-  stringr
+  splines
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
