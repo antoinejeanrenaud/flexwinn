@@ -209,7 +209,6 @@ homogen.var.2 <- function(met.dat)
       # If normality  use Levine test for homogeneity of variance
       # Else us Fligner-Killeen test
       p.val <- c()
-      print(x$p.value)
       if (x$p.value < 0.05) {
         # no normality : Fligner-Killeen
         flig.tst <-
@@ -327,9 +326,6 @@ fkPELT<-function(data,knots){
   cp[[n+1]]<-cp[[n+1]][-1]
   return(cp[[n+1]]) #Return the set of change points
 }
-
-
-
 
 
 
