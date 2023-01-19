@@ -13,10 +13,18 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-Changomics is a very simple package to use. load the included data set to try it.
+Changomics is a very simple package to use. There is only one function to use in it. Load the included data set to try it. Using these following lines will allow you to correct the distorted data of the metabolites in met.df. If the data is not distorted it should not or almost not correct.
 ```{r setup}
 library(changomics)
 data(met.df)
 corrected<-changomics(as.data.frame(met.df))
 ```
-You directly end up with the corrected data frame of all metabolites (here 2 simulated metabolites only)
+You directly end up with the corrected data frame of all metabolites (here 2 simulated metabolites only).
+You can even visualize the correction applied to the first metabolite of the data frame by setting the parameter graph to TRUE.
+```{r example_plot}
+library(changomics)
+data(met.df)
+met2<-as.data.frame(met.df$met2)
+corrected<-changomics(met2,graph=TRUE)
+```
+Here you can observe the different change points that have been found in this time series for the second metabolite of the data set met.df. You can also see the correction applied to the different segments.
