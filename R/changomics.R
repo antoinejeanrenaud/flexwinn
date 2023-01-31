@@ -20,7 +20,8 @@
 
 changomics<-function(data,graph=FALSE){
   if (!is.data.frame(data)){
-    stop("data must be a data frame")
+    stop("data must be a data frame") # We ensure the input is of type
+                                      # data.frame
   }
   NA_present<-FALSE
   for (k.na in 1:dim(data)[2]) {
@@ -29,7 +30,7 @@ changomics<-function(data,graph=FALSE){
     }
   }
   if (NA_present){
-    data<-na.omit(data)
+    data<-na.omit(data) #remove NAs
     if (nrow(data)>0){
     warning("There is(are) NA value(s) in the data frame, na.omit()
     removed the rows containing NA(s).
@@ -40,13 +41,15 @@ changomics<-function(data,graph=FALSE){
   if (nrow(data)==0){
     stop("All rows have been removed because there were Na's in each row:
     remove yourself Na's and run algo
-         for one metabolites at a time")}
+         for one metabolites at a time") #If all values have been removed
+    }
   corrected<-data
   for (k in 1:dim(data)[2]){
     knots<-seq(1,length(data[[k]]),length.out=floor(length(data[[k]])/60)+2)
+    #Select number of knots ~1 knot per 60 observations
     knots<-knots[-c(1,length(knots))]
     knots<-knots+rep(0.5,length(knots))*(floor(knots)==knots)
-    changepoints<-fkPELT(data[[k]],knots = knots)
+    changepoints<-fkPELT(data[[k]],knots = knots) # find the change points
     colname<-colnames(data[k])
     if (is.null(colname)){colnames(data[k])<-paste("met_",k,sep="")}
     #############
@@ -54,19 +57,20 @@ changomics<-function(data,graph=FALSE){
     changes<-length(changepoints)
     datanew<-data[[k]]
     tau<-c(0,changepoints,length(data[[k]]))
-    pred<-NULL
+    pred<-NULL #create a variable to store correction
     for (c in 1:(changes+1)){
       subset<-datanew[(tau[c]+1):tau[c+1]]
       size<-length(subset)
       if (size>=5){
         pvalue<-Box.test(subset,lag=floor(length(subset)/2),
                          type="Ljung-Box")$p.value
+        # Test if the segment has autocorrelation
         if (!is.na(pvalue) & pvalue<0.05){
-        dfw<-dfwhitenoise(subset)
+        dfw<-dfwhitenoise(subset) #Find the best degree of freedom
         spline<-smooth.spline(subset,df=dfw)
-        pred<-c(pred,spline$y)
+        pred<-c(pred,spline$y)#correction that will be applied
       }else{
-        pred<-c(pred,rep(mean(subset),size))
+        pred<-c(pred,rep(mean(subset),size)) #store the correction
       }
 
       }else{
@@ -75,6 +79,9 @@ changomics<-function(data,graph=FALSE){
     }
     if (k==1){
     if (graph==TRUE){
+      ## here is the code to plot visualizatio of how the algorithm works
+      ## We display change points together with uncorrected signal and
+      ## the correction that will be applied
       concentration<-data[[k]]
       plot(concentration,col="darkgray",
            xlab="reading sequence",ylab="uncorrected signal",
@@ -96,10 +103,12 @@ changomics<-function(data,graph=FALSE){
     #######
     #normalizing
     datanew<-changetometa(as.data.frame(datanew),changepoints)
+    ## Put in form that we can know which segment/plate the data is in
     colnames(datanew)<-"orig"
     if (changes>=1){
-
-      homo2<-homogen.var.2(datanew)
+      ## if no change no normalization
+      homo2<-homogen.var.2(datanew) # Test if the different segments
+                                    # have homogeneity of variance
       if (!homo2){
 
         plates <-
@@ -151,7 +160,7 @@ changomics<-function(data,graph=FALSE){
 
 }
 #########
-#change data to be in the form with group/plate to then normalize
+##change data to be in the form with group/plate to then normalize
 changetometa<-function(data,changepoints){
   names<-vector("character",length = length(data[[1]]))
   tau<-c(0,changepoints,length(data[[1]]))
@@ -173,9 +182,12 @@ changetometa<-function(data,changepoints){
 #############
 #'@noRd
 #'@importFrom stats smooth.spline
+
+## Find the best degree of freedom that maximize the p-value of
+## autocorrelation test
 dfwhitenoise<-function(data){
   t<-n_distinct(data)
-  l<-min(c(t-1,40))
+  l<-min(c(t-1,floor(t*20/100)))
   value<-numeric(length = l-1)
   for (i in 2:l){
     spline<-smooth.spline(data,df=i)
@@ -188,6 +200,8 @@ dfwhitenoise<-function(data){
 ###########
 #' @noRd
 #' @importFrom stats sd shapiro.test fligner.test as.formula
+
+## Test if the different segments in the data set have the same variance
 homogen.var.2 <- function(met.dat)
 {
   # Create a vector to store results of homogeneity variance test
@@ -216,7 +230,7 @@ homogen.var.2 <- function(met.dat)
                        data = met.df)
         p.val <- flig.tst$p.value
       } else{
-        # Change this once "car" library is available
+        # Change this once bartlett.test from "car" library is available
         lev.tst <- levene.test(met.df[, 1],
                                met.df[, "group"],
                                location = "median",
@@ -285,8 +299,9 @@ fkPELT<-function(data,knots){
   if (is.null(data)){stop("data cannot be NULL in fkPELT")}
   n<-length(data)
   f<-numeric(length = n+1)
-  f[1]<- -3*log(300) # 3*log(n) is the penalty constant tha we use
-                     #in the PELT algorithm
+  f[1]<- -3*log(300) # 3*log(300) is the penalty constant tha we use
+                     #in the PELT algorithm. Inspired by BIC criterion but
+                     #modified
   cp<-rep(list(numeric()),n+1)
   R<-rep(list(numeric()),n)
   R[[1]]<-0
