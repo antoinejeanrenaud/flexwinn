@@ -9,7 +9,6 @@ Description: Allow the user to use the 'changomics' function which find the chan
 Imports:
   dplyr,
   lawstat,
-  sarima,
   splines
 License: MIT + file LICENSE
 Encoding: UTF-8

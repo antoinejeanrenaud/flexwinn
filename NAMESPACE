@@ -3,7 +3,6 @@
 export(changomics)
 import(dplyr)
 import(lawstat)
-import(sarima)
 import(splines)
 importFrom(graphics,abline)
 importFrom(graphics,legend)

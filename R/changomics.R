@@ -7,7 +7,6 @@
 #' @param graph TRUE or FALSE. If TRUE will display the graph of uncorrected
 #' data with estimated change points and correction
 #' @return the corrected dataframe of metabolite(s).
-#' @import sarima
 #' @import splines
 #' @import dplyr
 #' @import lawstat
