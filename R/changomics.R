@@ -24,7 +24,7 @@ changomics<-function(data,graph=FALSE){
   }
   NA_present<-FALSE
   for (k.na in 1:dim(data)[2]) {
-    if (sum(is.na(data[,k.na]))){
+    if (sum(is.na(data[,k.na]))>0){
       NA_present<-TRUE
     }
   }
@@ -64,7 +64,7 @@ changomics<-function(data,graph=FALSE){
         pvalue<-Box.test(subset,lag=floor(length(subset)/2),
                          type="Ljung-Box")$p.value
         # Test if the segment has autocorrelation
-        if (!is.na(pvalue) & pvalue<0.05){
+        if (!is.na(pvalue) & pvalue<0.01){
         dfw<-dfwhitenoise(subset) #Find the best degree of freedom
         spline<-smooth.spline(subset,df=dfw)
         pred<-c(pred,spline$y)#correction that will be applied
@@ -101,58 +101,10 @@ changomics<-function(data,graph=FALSE){
     datanew<-datanew-pred
     #######
     #normalizing
-    datanew<-changetometa(as.data.frame(datanew),changepoints)
-    ## Put in form that we can know which segment/plate the data is in
-    colnames(datanew)<-"orig"
-    if (changes>=1){
-      ## if no change no normalization
-      homo2<-homogen.var.2(datanew) # Test if the different segments
-                                    # have homogeneity of variance
-      if (!homo2){
-
-        plates <-
-          unique(unlist(lapply(strsplit(
-            rownames(datanew), "_"
-          ), function(x) {
-            return(x[2])
-          })))
-
-        met.plates.sd <- c()
-
-        for (j in plates) {
-
-          grep.plates <-
-            grep(paste("plate", "_", j, "_", sep = ""), row.names(datanew))
-          sd.plate    <-  sd(datanew[grep.plates,], na.rm = TRUE)
-
-
-
-          if(!is.na(sd.plate) & sd.plate == 0) {
-            sd.plate <- NA
-          }
-
-          met.plates.sd <-
-            c(met.plates.sd, rep(sd.plate, length(grep.plates)))
-        }
-
-        # Normalize
-        datanew[["norm"]] <- datanew[["orig"]] / met.plates.sd
-        if (sum(is.na(datanew[["norm"]]))>0){
-
-          dataret<-datanew[["orig"]]
-
-        }
-
-        dataret<-datanew[["norm"]]
-      }
-    }
-
-    dataret<-datanew[["orig"]]
-
-
-  #######
-  #return result
-    corrected[[k]]<-dataret
+    data.norm<-normalize.var(datanew,changepoints)
+    #######
+   #return result
+    corrected[[k]]<-data.norm
   }
 
   return(corrected)
@@ -186,7 +138,7 @@ changetometa<-function(data,changepoints){
 ## autocorrelation test
 dfwhitenoise<-function(data){
   t<-n_distinct(data)
-  l<-min(c(t-1,floor(t*20/100)))
+  l<-max(min(c(t-1,floor(t*10/100))),2)
   value<-numeric(length = l-1)
   for (i in 2:l){
     spline<-smooth.spline(data,df=i)
@@ -201,16 +153,15 @@ dfwhitenoise<-function(data){
 #' @importFrom stats sd shapiro.test fligner.test as.formula
 
 ## Test if the different segments in the data set have the same variance
-homogen.var.2 <- function(met.dat)
+homogen.var <- function(met.dat)
 {
   # Create a vector to store results of homogeneity variance test
   is.hom.var <- FALSE
 
     met.df <-  met.dat["orig"]
-
     if(sd(met.dat[,1], na.rm=TRUE) == 0){
-      is.hom.var <- TRUE}
-    else{
+      is.hom.var <- TRUE
+      }else{
       met.df[["group"]] <- sapply(rownames(met.df),
                                   function(x) {
                                     strsplit(x, "_")[[1]][2]
@@ -236,8 +187,10 @@ homogen.var.2 <- function(met.dat)
                                correction.method = "zero.correction")
         p.val <- lev.tst$p.value
       }
+      if(!is.na(p.val)){
       if (p.val > 0.05) {
         is.hom.var<- TRUE
+      }
       }
     }
 
@@ -342,7 +295,58 @@ fkPELT<-function(data,knots){
 }
 
 
+normalize.var<-function(data,endpoints){
+  datanew<-changetometa(as.data.frame(data),endpoints)
+  changes<-length(endpoints)
+  ## Put in form that we can know which segment/plate the data is in
+  colnames(datanew)<-"orig"
+  if (changes>=1){
+    ## if no change no normalization
+    homo2<-homogen.var(datanew) # Test if the different segments
+    # have homogeneity of variance
+    if (!homo2){
 
+      plates <-
+        unique(unlist(lapply(strsplit(
+          rownames(datanew), "_"
+        ), function(x) {
+          return(x[2])
+        })))
+
+      met.plates.sd <- c()
+
+      for (j in plates) {
+
+        grep.plates <-
+          grep(paste("plate", "_", j, "_", sep = ""), row.names(datanew))
+        sd.plate    <-  sd(datanew[grep.plates,], na.rm = TRUE)
+
+
+
+        if(!is.na(sd.plate) & sd.plate == 0) {
+          sd.plate <- NA
+        }
+
+        met.plates.sd <-
+          c(met.plates.sd, rep(sd.plate, length(grep.plates)))
+      }
+
+      # Normalize
+      datanew[["norm"]] <- datanew[["orig"]] / met.plates.sd
+      if (sum(is.na(datanew[["norm"]]))>0){
+
+        dataret<-datanew[["orig"]]
+
+      }
+
+      dataret<-datanew[["norm"]]
+    }
+  }
+
+  dataret<-datanew[["orig"]]
+
+  return(dataret)
+}
 
 
 
