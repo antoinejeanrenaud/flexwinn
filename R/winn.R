@@ -170,7 +170,9 @@ residualize<-function(met.data,endpoints){
     ), function(x) {
       return(x[2])
     })))
-
+    if (length(plates)<=1){
+      a.pval<-1
+    }else{
       met.data[["group"]] <-
         as.factor(paste("plate", "_",
                         unlist(lapply(strsplit(rownames(met.data), "_"),
@@ -179,6 +181,7 @@ residualize<-function(met.data,endpoints){
       # ANOVA test
       a <- aov(as.formula(paste("orig", "~ group", sep = "")), data = met.data)
       a.pval <- summary(a)[[1]][, "Pr(>F)"][1]
+    }
       if (a.pval<0.05){
         resid<-TRUE
       }
