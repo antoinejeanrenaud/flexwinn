@@ -115,6 +115,7 @@ corrected<-winn(met2,c(53,105,177,274,330,415,519,605,688,771),graph=TRUE)
 ```
 
 <img src="man/figures/README-example_6-1.png" width="100%" /> The plates
-are displayed, the correction applied is displayed. The time series
-displayed here is different than with the flexwinn function because
-there is an additional step before detrending.
+are displayed, the correction applied is displayed. We have set the
+plates here to coincide perfectly with the plates boundaries. The time
+series displayed here is different than with the flexwinn function
+because there is an additional step before detrending.
