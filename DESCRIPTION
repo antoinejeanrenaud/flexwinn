@@ -1,5 +1,5 @@
 Package: flexwinn
-Title: Correct Signal Of Metabolites For Batch Effects And Drifts
+Title: Correct Signal of Metabolites for Batch Effects and Drifts
 Version: 0.0.0.9000
 Authors@R: 
     c(person("Antoine", "Jeanrenaud", , "antoine2104@hotmail.com", role = c("aut", "cre")),
