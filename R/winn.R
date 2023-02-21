@@ -5,7 +5,7 @@
 #' @param data input dataset of metabolites as data frame.
 #' @param graph TRUE or FALSE. If TRUE will display the graph of uncorrected
 #' data with plates and correction
-#' @param end.plates vector containing the endpoints of the plates
+#' @param end.plates vector containing the position of the changes in plates
 #' in terms of run order. The vector must be ordered.
 #' @return the corrected dataframe of metabolite(s).
 #' @import splines
@@ -82,8 +82,8 @@ winn<-function(data,end.plates,graph=FALSE){
         ## the correction that will be applied
         concentration<-data.resid
         plot(concentration,col="darkgray",
-             xlab="reading sequence",ylab="uncorrected signal",
-             main="uncorrected signal + correction and change points",
+             xlab="reading sequence",ylab="residualized/normalized signal",
+             main="residualized/normalized signal + correction and plates",
              type="l")
         for (l in changepoints) {
           abline(v=l,col="red",lty=2)
@@ -93,7 +93,7 @@ winn<-function(data,end.plates,graph=FALSE){
           "bottomleft",
           lty = c(1, 1),
           col = c("darkgrey", "red"),
-          legend = c("Uncorrected", "Correction"),
+          legend = c("residualized/normalized", "Correction"),
           cex=0.5
         )
       }}

@@ -1,16 +1,25 @@
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # changomics
 
 <!-- badges: start -->
-
 <!-- badges: end -->
 
-The goal of changomics is to correct a data set of metabolites that has been distorted during the data gathering. It detects automatically through dynamic programming the change points in time series and then residualize, detrend and normalize the time series of metabolites.
+The goal of changomics is to correct a data set of metabolites that has
+been distorted during the data gathering. There are two different
+function in it.The first one (changomics) detects automatically through
+dynamic programming the change points in time series and then
+residualize, detrend and normalize the time series of metabolites. The
+second one uses the plates information to correct to correct the
+distorted time series. Both correct the time series in a very similar
+way but on estimates the change points and one consider change points
+coincide with plates boundaries.
 
 ## Installation
 
-You can install the development version of changomics from [GitHub](https://github.com/) with:
+You can install the development version of changomics from
+[GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
@@ -19,7 +28,9 @@ devtools::install_github("antoinejeanrenaud/changomics")
 
 ## Example
 
-This is a basic example which shows how to use the changomics function. This example allows to correct for the two metabolites in the data set met.df.
+This is a basic example which shows how to use the changomics function.
+This example allows to correct for the two metabolites in the data set
+met.df.
 
 ``` r
 library(changomics)
@@ -29,7 +40,10 @@ data(met.df)
 corrected<-changomics(as.data.frame(met.df),graph=FALSE)
 ```
 
-There is a parameter "graph" which allow to plot the change points found in the data sequence and show how it is detrended. When set to TRUE it will produce a plot for the first metabolite of the data set to be corrected.
+There is a parameter “graph” which allow to plot the change points found
+in the data sequence and show how it is detrended. When set to TRUE it
+will produce a plot for the first metabolite of the data set to be
+corrected.
 
 ``` r
 library(changomics)
@@ -40,9 +54,11 @@ met1<-as.data.frame(met.df$met1)
 corrected<-changomics(met1,graph=TRUE)
 ```
 
-<img src="man/figures/README-example_2-1.png" width="100%"/>
+<img src="man/figures/README-example_2-1.png" width="100%" />
 
-Here we have a metabolite that is not distorted, so the function changomics is not really correcting it. The algorithm has found a change point, but this can happen when there are outliers.
+Here we have a metabolite that is not distorted, so the function
+changomics is not really correcting it. The algorithm has found no
+change point which is correct.
 
 ``` r
 library(changomics)
@@ -53,6 +69,52 @@ met2<-as.data.frame(met.df$met2)
 corrected<-changomics(met2,graph=TRUE)
 ```
 
-<img src="man/figures/README-example_3-1.png" width="100%"/>
+<img src="man/figures/README-example_3-1.png" width="100%" />
 
-This time the signal was distorted and we see the change points estimated and the correction applied. Of course, the algorithm is probably not recovering each change point perfectly, but in the end the correlation with the original non distorted time series is the most important.
+This time the signal was distorted and we see the change points
+estimated and the correction applied. Of course, the algorithm is
+probably not recovering each change point perfectly, but in the end the
+correlation with the original non distorted time series is the most
+important. We can also have a look on how to use the winn function. The
+only difference in use is that you also have to specify the places of
+change in plate in an ordered vector.
+
+``` r
+library(changomics)
+# Load the data of metabolites
+data(met.df)
+# Use winn to correct the metabolites
+corrected<-winn(as.data.frame(met.df),c(53,105,177,274,330,415,519,605,688,771),graph=FALSE)
+```
+
+There is a parameter “graph” which allow to plot the plates in the data
+sequence and show how it is detrended. When set to TRUE it will produce
+a plot for the first metabolite of the data set to be corrected.
+
+``` r
+library(changomics)
+# Load the data of metabolites
+data(met.df)
+# Use winn to correct the metabolites
+met1<-as.data.frame(met.df$met1)
+corrected<-winn(met1,c(53,105,177,274,330,415,519,605,688,771),graph=TRUE)
+```
+
+<img src="man/figures/README-example_5-1.png" width="100%" /> Here we
+have a metabolite that is not distorted, so the function winn is not
+really correcting it. Let’s now have a look at a simnulated metabolite
+with batch effects and drifts.
+
+``` r
+library(changomics)
+# Load the data of metabolites
+data(met.df)
+# Use winn to correct the metabolites
+met2<-as.data.frame(met.df$met2)
+corrected<-winn(met2,c(53,105,177,274,330,415,519,605,688,771),graph=TRUE)
+```
+
+<img src="man/figures/README-example_6-1.png" width="100%" /> The plates
+are displayed, the correction applied is displayed. The time series
+displayed here is different than with the changomics function because
+there is an additional step before detrending.

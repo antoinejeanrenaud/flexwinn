@@ -2,9 +2,11 @@ Package: changomics
 Title: Correct Signal Of Metabolites For Batch Effects And Drifts
 Version: 0.0.0.9000
 Authors@R: 
-    person("Antoine", "Jeanrenaud", , "antoine2104@hotmail.com", role = c("aut", "cre"))
+    c(person("Antoine", "Jeanrenaud", , "antoine2104@hotmail.com", role = c("aut", "cre")),
+    person("Malte", "Londschien", , "malte.londschien@ai.ethz.ch", role = "aut"),
+    person("Olga", "Demler", , "olgademler@gmail.com", role = "aut"))
 Description: Allow the user to use the 'changomics' and 'winn' function which both correct
- distorted metabolites. The first one finds the change points (jumps) auztomatically while
+ distorted metabolites. The first one finds the change points (jumps) automatically while
  the second one uses plate information.
 Imports:
   dplyr,

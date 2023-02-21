@@ -9,7 +9,7 @@ winn(data, end.plates, graph = FALSE)
 \arguments{
 \item{data}{input dataset of metabolites as data frame.}
 
-\item{end.plates}{vector containing the endpoints of the plates
+\item{end.plates}{vector containing the position of the changes in plates
 in terms of run order. The vector must be ordered.}
 
 \item{graph}{TRUE or FALSE. If TRUE will display the graph of uncorrected
