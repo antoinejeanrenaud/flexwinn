@@ -1,4 +1,4 @@
-#' @title changomics
+#' @title flexwinn
 #' @description A function for metabolite correction.
 #' This function first estimate the change points
 #'  (jumps) and then correct each different segment
@@ -15,9 +15,9 @@
 #' @export
 #' @examples
 #' met1<-rnorm(200)
-#' changomics(as.data.frame(met1))
+#' flexwinn(as.data.frame(met1))
 
-changomics<-function(data,graph=FALSE){
+flexwinn<-function(data,graph=FALSE){
   if (!is.data.frame(data)){
     stop("data must be a data frame") # We ensure the input is of type
                                       # data.frame

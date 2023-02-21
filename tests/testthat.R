@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/reference/test_package.html#special-files
 
 library(testthat)
-library(changomics)
+library(flexwinn)
 
-test_check("changomics")
+test_check("flexwinn")

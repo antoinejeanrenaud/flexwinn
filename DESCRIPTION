@@ -1,11 +1,11 @@
-Package: changomics
+Package: flexwinn
 Title: Correct Signal Of Metabolites For Batch Effects And Drifts
 Version: 0.0.0.9000
 Authors@R: 
     c(person("Antoine", "Jeanrenaud", , "antoine2104@hotmail.com", role = c("aut", "cre")),
     person("Malte", "Londschien", , "malte.londschien@ai.ethz.ch", role = "aut"),
     person("Olga", "Demler", , "olgademler@gmail.com", role = "aut"))
-Description: Allow the user to use the 'changomics' and 'winn' function which both correct
+Description: Allow the user to use the 'flexwinn' and 'winn' function which both correct
  distorted metabolites. The first one finds the change points (jumps) automatically while
  the second one uses plate information.
 Imports:
@@ -24,6 +24,6 @@ Suggests:
     rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-URL: https://github.com/antoinejeanrenaud/changomics
-BugReports: https://github.com/antoinejeanrenaud/changomics/issues
+URL: https://github.com/antoinejeanrenaud/flexwinn
+BugReports: https://github.com/antoinejeanrenaud/flexwinn/issues
 VignetteBuilder: knitr

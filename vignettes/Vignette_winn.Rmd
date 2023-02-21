@@ -15,14 +15,14 @@ knitr::opts_chunk$set(
 ```
 winn is a very simple function to use. Load the included data set to try it. Using these following lines will allow you to correct the distorted data of the metabolites in met.df. If the data is not distorted it should not or almost not correct.
 ```{r setup}
-library(changomics)
+library(flexwinn)
 data(met.df)
 corrected<-winn(as.data.frame(met.df),c(53,105,177,274,330,415,519,605,688,771))
 ```
 You directly end up with the corrected data frame of all metabolites (here 2 simulated metabolites only).
 You can even visualize the correction applied to the first metabolite of the data frame by setting the parameter graph to TRUE.
 ```{r example_plot}
-library(changomics)
+library(flexwinn)
 data(met.df)
 met2<-as.data.frame(met.df$met2)
 corrected<-winn(met2,c(53,105,177,274,330,415,519,605,688,771),graph=TRUE)

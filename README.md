@@ -1,14 +1,14 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# changomics
+# flexwinn
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of changomics is to correct a data set of metabolites that has
+The goal of flexwinn is to correct a data set of metabolites that has
 been distorted during the data gathering. There are two different
-function in it.The first one (changomics) detects automatically through
+function in it.The first one (flexwinn) detects automatically through
 dynamic programming the change points in time series and then
 residualize, detrend and normalize the time series of metabolites. The
 second one uses the plates information to correct to correct the
@@ -18,26 +18,26 @@ coincide with plates boundaries.
 
 ## Installation
 
-You can install the development version of changomics from
+You can install the development version of flexwinn from
 [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("antoinejeanrenaud/changomics")
+devtools::install_github("antoinejeanrenaud/flexwinn")
 ```
 
 ## Example
 
-This is a basic example which shows how to use the changomics function.
+This is a basic example which shows how to use the flexwinn function.
 This example allows to correct for the two metabolites in the data set
 met.df.
 
 ``` r
-library(changomics)
+library(flexwinn)
 # Load the data of metabolites
 data(met.df)
-# Use changomics to correct the metabolites
-corrected<-changomics(as.data.frame(met.df),graph=FALSE)
+# Use flexwinn to correct the metabolites
+corrected<-flexwinn(as.data.frame(met.df),graph=FALSE)
 ```
 
 There is a parameter “graph” which allow to plot the change points found
@@ -46,27 +46,27 @@ will produce a plot for the first metabolite of the data set to be
 corrected.
 
 ``` r
-library(changomics)
+library(flexwinn)
 # Load the data of metabolites
 data(met.df)
-# Use changomics to correct the metabolites
+# Use flexwinn to correct the metabolites
 met1<-as.data.frame(met.df$met1)
-corrected<-changomics(met1,graph=TRUE)
+corrected<-flexwinn(met1,graph=TRUE)
 ```
 
 <img src="man/figures/README-example_2-1.png" width="100%" />
 
 Here we have a metabolite that is not distorted, so the function
-changomics is not really correcting it. The algorithm has found no
-change point which is correct.
+flexwinn is not really correcting it. The algorithm has found no change
+point which is correct.
 
 ``` r
-library(changomics)
+library(flexwinn)
 # Load the data of metabolites
 data(met.df)
-# Use changomics to correct the metabolites
+# Use flexwinn to correct the metabolites
 met2<-as.data.frame(met.df$met2)
-corrected<-changomics(met2,graph=TRUE)
+corrected<-flexwinn(met2,graph=TRUE)
 ```
 
 <img src="man/figures/README-example_3-1.png" width="100%" />
@@ -80,7 +80,7 @@ only difference in use is that you also have to specify the places of
 change in plate in an ordered vector.
 
 ``` r
-library(changomics)
+library(flexwinn)
 # Load the data of metabolites
 data(met.df)
 # Use winn to correct the metabolites
@@ -92,7 +92,7 @@ sequence and show how it is detrended. When set to TRUE it will produce
 a plot for the first metabolite of the data set to be corrected.
 
 ``` r
-library(changomics)
+library(flexwinn)
 # Load the data of metabolites
 data(met.df)
 # Use winn to correct the metabolites
@@ -106,7 +106,7 @@ really correcting it. Let’s now have a look at a simnulated metabolite
 with batch effects and drifts.
 
 ``` r
-library(changomics)
+library(flexwinn)
 # Load the data of metabolites
 data(met.df)
 # Use winn to correct the metabolites
@@ -116,5 +116,5 @@ corrected<-winn(met2,c(53,105,177,274,330,415,519,605,688,771),graph=TRUE)
 
 <img src="man/figures/README-example_6-1.png" width="100%" /> The plates
 are displayed, the correction applied is displayed. The time series
-displayed here is different than with the changomics function because
+displayed here is different than with the flexwinn function because
 there is an additional step before detrending.
