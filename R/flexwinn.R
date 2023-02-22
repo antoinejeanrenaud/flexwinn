@@ -10,6 +10,7 @@
 #' @import splines
 #' @import dplyr
 #' @import lawstat
+#' @import mgcv
 #' @importFrom graphics abline legend lines
 #' @importFrom stats na.omit Box.test
 #' @export
@@ -66,8 +67,9 @@ flexwinn<-function(data,graph=FALSE){
         # Test if the segment has autocorrelation
         if (!is.na(pvalue) & pvalue<0.01){
         dfw<-dfwhitenoise(subset) #Find the best degree of freedom
-        spline<-smooth.spline(subset,df=dfw)
-        pred<-c(pred,spline$y)#correction that will be applied
+        x<-1:length(subset)
+        spline<-mgcv::gam(subset~s(x,bs="cr",k=dfw,fx=TRUE))
+        pred<-c(pred,spline$fitted.values)#correction that will be applied
       }else{
         pred<-c(pred,rep(mean(subset),size)) #store the correction
       }
@@ -132,20 +134,22 @@ changetometa<-function(data,changepoints){
 
 #############
 #'@noRd
-#'@importFrom stats smooth.spline
+#'@importFrom stats residuals
+
 
 ## Find the best degree of freedom that maximize the p-value of
 ## autocorrelation test
 dfwhitenoise<-function(data){
   t<-n_distinct(data)
-  l<-max(min(c(t-1,floor(t*10/100))),2)
-  value<-numeric(length = l-1)
-  for (i in 2:l){
-    spline<-smooth.spline(data,df=i)
-    epsilon<-data-spline$y
-    value[i-1]<-Box.test(epsilon,lag=15,type="Ljung-Box")$p.value
+  l<-max(min(c(t-1,floor(t*10/100))),3)
+  value<-numeric(length = l-2)
+  for (i in 3:l){
+    x<-1:length(data)
+    spline<-mgcv::gam(data~s(x,bs="cr",k=i,fx=TRUE))
+    epsilon<-residuals(spline)
+    value[i-2]<-Box.test(epsilon,lag=min(20,length(epsilon)-1),type="Ljung-Box")$p.value
   }
-  df<-which.max(value)+1
+  df<-which.max(value)+2
   return(df)
 }
 ###########

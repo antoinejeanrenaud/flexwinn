@@ -11,6 +11,7 @@
 #' @import splines
 #' @import dplyr
 #' @import lawstat
+#' @import mgcv
 #' @importFrom graphics abline legend lines
 #' @importFrom stats na.omit Box.test
 #' @export
@@ -64,15 +65,16 @@ winn<-function(data,end.plates,graph=FALSE){
                          type="Ljung-Box")$p.value
         # Test if the segment has autocorrelation
         if (!is.na(pvalue) & pvalue<0.01){
-          dfw<-dfwhitenoise(subset) #Find the best degree of freedom
-          spline<-smooth.spline(subset,df=dfw)
-          pred<-c(pred,spline$y)#correction that will be applied
+          dfw<-dfwhitenoise(subset)#Find the best degree of freedom
+          x<-1:length(subset)
+          spline<-mgcv::gam(subset~s(x,bs="cr",k=dfw,fx=TRUE))
+          pred<-c(pred,spline$fitted.values)#correction that will be applied
         }else{
           pred<-c(pred,rep(0,size)) #store the correction
         }
 
       }else{
-        pred<-c(pred,rep(mean(subset),size))
+        pred<-c(pred,rep(0,size))
       }
     }
     if (k==1){

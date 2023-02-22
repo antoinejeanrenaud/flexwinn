@@ -11,6 +11,7 @@ Description: Allow the user to use the 'flexwinn' and 'winn' function which both
 Imports:
   dplyr,
   lawstat,
+  mgcv,
   splines
 License: MIT + file LICENSE
 Encoding: UTF-8
