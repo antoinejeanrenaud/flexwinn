@@ -48,7 +48,7 @@ winn<-function(data,end.plates,graph=FALSE){
     datanew<-data[[k]]-mean(data[[k]])
     #####
     #First normalization
-    #This normalization is fo the next anova test
+    #This normalization is for the next anova test
     data.norm<-normalize.var(datanew,changepoints)
     ######
     #Residualizing if needed

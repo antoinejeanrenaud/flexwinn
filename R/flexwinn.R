@@ -49,8 +49,10 @@ flexwinn<-function(data,graph=FALSE){
     #Select number of knots ~1 knot per 60 observations
     knots<-knots[-c(1,length(knots))]
     knots<-knots+rep(0.5,length(knots))*(floor(knots)==knots)
+    #make sure the knot is not on an observation
     changepoints<-fkPELT(data[[k]],knots = knots) # find the change points
     colname<-colnames(data[k])
+    #If there is no name give one
     if (is.null(colname)){colnames(data[k])<-paste("met_",k,sep="")}
     #############
     #Detrending
@@ -59,6 +61,7 @@ flexwinn<-function(data,graph=FALSE){
     tau<-c(0,changepoints,length(data[[k]]))
     pred<-NULL #create a variable to store correction
     for (c in 1:(changes+1)){
+      #take each segment
       subset<-datanew[(tau[c]+1):tau[c+1]]
       size<-length(subset)
       if (size>=5){
@@ -80,7 +83,7 @@ flexwinn<-function(data,graph=FALSE){
     }
     if (k==1){
     if (graph==TRUE){
-      ## here is the code to plot visualizatio of how the algorithm works
+      ## here is the code to plot visualization of how the algorithm works
       ## We display change points together with uncorrected signal and
       ## the correction that will be applied
       concentration<-data[[k]]
@@ -102,7 +105,7 @@ flexwinn<-function(data,graph=FALSE){
     }}
     datanew<-datanew-pred
     #######
-    #normalizing
+    #normalizing by segment
     data.norm<-normalize.var(datanew,changepoints)
     #######
    #return result
@@ -138,11 +141,12 @@ changetometa<-function(data,changepoints){
 
 
 ## Find the best degree of freedom that maximize the p-value of
-## autocorrelation test
+## autocorrelation test o the residuals. For the spline fit we are using mgcv::gam
 dfwhitenoise<-function(data){
   t<-n_distinct(data)
   l<-max(min(c(t-1,floor(t*10/100))),3)
   value<-numeric(length = l-2)
+  #loop to test different fit
   for (i in 3:l){
     x<-1:length(data)
     spline<-mgcv::gam(data~s(x,bs="cr",k=i,fx=TRUE))
@@ -159,7 +163,7 @@ dfwhitenoise<-function(data){
 ## Test if the different segments in the data set have the same variance
 homogen.var <- function(met.dat)
 {
-  # Create a vector to store results of homogeneity variance test
+  # Set to FALSE first
   is.hom.var <- FALSE
 
     met.df <-  met.dat["orig"]
