@@ -101,59 +101,15 @@ winn<-function(data,end.plates,graph=FALSE){
       }}
     datanew<-data.resid-pred
     #######
-    #normalizing
-    datanew<-changetometa(as.data.frame(datanew),changepoints)
-    ## Put in form that we can know which segment/plate the data is in
-    colnames(datanew)<-"orig"
-    if (changes>=1){
-      ## if no change no normalization
-      homo2<-homogen.var(datanew) # Test if the different segments
-      # have homogeneity of variance
-      if (!homo2){
-
-        plates <-
-          unique(unlist(lapply(strsplit(
-            rownames(datanew), "_"
-          ), function(x) {
-            return(x[2])
-          })))
-
-        met.plates.sd <- c()
-
-        for (j in plates) {
-
-          grep.plates <-
-            grep(paste("plate", "_", j, "_", sep = ""), row.names(datanew))
-          sd.plate    <-  sd(datanew[grep.plates,], na.rm = TRUE)
-
-
-
-          if(!is.na(sd.plate) & sd.plate == 0) {
-            sd.plate <- NA
-          }
-
-          met.plates.sd <-
-            c(met.plates.sd, rep(sd.plate, length(grep.plates)))
-        }
-
-        # Normalize
-        datanew[["norm"]] <- datanew[["orig"]] / met.plates.sd
-        if (sum(is.na(datanew[["norm"]]))>0){
-
-          dataret<-datanew[["orig"]]
-
-        }
-
-        dataret<-datanew[["norm"]]
-      }
-    }
-
-    dataret<-datanew[["orig"]]
-
-
+    #normalizing by segment again
+    data.norm.2<-normalize.var(datanew,changepoints)
+    ######
+    #Residualizing if needed
+    data.resid.2<-residualize(data.norm.2,changepoints)
     #######
     #return result
-    corrected[[k]]<-dataret
+    corrected[[k]]<-data.resid.2
+
   }
 
   return(corrected)
