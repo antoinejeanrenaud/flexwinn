@@ -19,6 +19,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
+
 The goal of flexwinn is to correct a data set of metabolites that has been distorted during the data gathering. There are two different function in it.The first one (flexwinn) detects automatically through dynamic programming the change points in time series and then residualize, detrend and normalize the time series of metabolites. The second one uses the plates information to correct to correct the distorted time series. Both correct the time series in a very similar way but on estimates the change points and one consider change points coincide with plates boundaries.
 
 ## Installation

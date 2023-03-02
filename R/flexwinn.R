@@ -5,7 +5,8 @@
 #'  by detrending and normalizing when needed.
 #' @param data input dataset of metabolites as data frame.
 #' @param graph TRUE or FALSE. If TRUE will display the graph of uncorrected
-#' data with estimated change points and correction
+#' data with estimated change points and correction and the corrected signal
+#' on a second plot.
 #' @return the corrected dataframe of metabolite(s).
 #' @import splines
 #' @import dplyr
@@ -107,6 +108,27 @@ flexwinn<-function(data,graph=FALSE){
     #######
     #normalizing by segment
     data.norm<-normalize.var(datanew,changepoints)
+    #####
+    #plot corrected
+    if (k==1){
+      if (graph==TRUE){
+
+        ##We display the corrected signal for the first metabolite
+        concentration<-data.norm
+        plot(concentration,col="darkgray",
+             xlab="reading sequence",ylab="corrected signal",
+             main="corrected signal",
+             type="l")
+
+        legend(
+          "bottomleft",
+          lty = c(1, 1),
+          col = c("darkgrey"),
+          legend = c("corrected"),
+          cex=0.5
+        )
+      }
+      }
     #######
    #return result
     corrected[[k]]<-data.norm

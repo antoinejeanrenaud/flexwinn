@@ -10,7 +10,8 @@ flexwinn(data, graph = FALSE)
 \item{data}{input dataset of metabolites as data frame.}
 
 \item{graph}{TRUE or FALSE. If TRUE will display the graph of uncorrected
-data with estimated change points and correction}
+data with estimated change points and correction and the corrected signal
+on a second plot.}
 }
 \value{
 the corrected dataframe of metabolite(s).

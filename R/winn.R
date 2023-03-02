@@ -4,7 +4,8 @@
 #' with the plate information by detrending and normalizing when needed.
 #' @param data input dataset of metabolites as data frame.
 #' @param graph TRUE or FALSE. If TRUE will display the graph of uncorrected
-#' data with plates and correction
+#' data with plates and correction and the corrected signal on a
+#' second plot.
 #' @param end.plates vector containing the position of the changes in plates
 #' in terms of run order. The vector must be ordered.
 #' @return the corrected dataframe of metabolite(s).
@@ -106,6 +107,27 @@ winn<-function(data,end.plates,graph=FALSE){
     ######
     #Residualizing if needed
     data.resid.2<-residualize(data.norm.2,changepoints)
+    #####
+    #plot corrected
+    if (k==1){
+      if (graph==TRUE){
+
+        ##We display the corrected signal for the first metabolite
+        concentration<-data.resid.2
+        plot(concentration,col="darkgray",
+             xlab="reading sequence",ylab="corrected signal",
+             main="corrected signal",
+             type="l")
+
+        legend(
+          "bottomleft",
+          lty = c(1, 1),
+          col = c("darkgrey"),
+          legend = c("corrected"),
+          cex=0.5
+        )
+      }
+    }
     #######
     #return result
     corrected[[k]]<-data.resid.2

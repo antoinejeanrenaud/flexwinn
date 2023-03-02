@@ -54,7 +54,7 @@ met1<-as.data.frame(met.df$met1)
 corrected<-flexwinn(met1,graph=TRUE)
 ```
 
-<img src="man/figures/README-example_2-1.png" width="100%" />
+<img src="man/figures/README-example_2-1.png" width="100%" /><img src="man/figures/README-example_2-2.png" width="100%" />
 
 Here we have a metabolite that is not distorted, so the function
 flexwinn is not really correcting it. The algorithm has found no change
@@ -69,7 +69,7 @@ met2<-as.data.frame(met.df$met2)
 corrected<-flexwinn(met2,graph=TRUE)
 ```
 
-<img src="man/figures/README-example_3-1.png" width="100%" />
+<img src="man/figures/README-example_3-1.png" width="100%" /><img src="man/figures/README-example_3-2.png" width="100%" />
 
 This time the signal was distorted and we see the change points
 estimated and the correction applied. Of course, the algorithm is
@@ -100,10 +100,10 @@ met1<-as.data.frame(met.df$met1)
 corrected<-winn(met1,c(53,105,177,274,330,415,519,605,688,771),graph=TRUE)
 ```
 
-<img src="man/figures/README-example_5-1.png" width="100%" /> Here we
-have a metabolite that is not distorted, so the function winn is not
-really correcting it. Let’s now have a look at a simnulated metabolite
-with batch effects and drifts.
+<img src="man/figures/README-example_5-1.png" width="100%" /><img src="man/figures/README-example_5-2.png" width="100%" />
+Here we have a metabolite that is not distorted, so the function winn is
+not really correcting it. Let’s now have a look at a simnulated
+metabolite with batch effects and drifts.
 
 ``` r
 library(flexwinn)
@@ -114,8 +114,8 @@ met2<-as.data.frame(met.df$met2)
 corrected<-winn(met2,c(53,105,177,274,330,415,519,605,688,771),graph=TRUE)
 ```
 
-<img src="man/figures/README-example_6-1.png" width="100%" /> The plates
-are displayed, the correction applied is displayed. We have set the
-plates here to coincide perfectly with the plates boundaries. The time
-series displayed here is different than with the flexwinn function
-because there is an additional step before detrending.
+<img src="man/figures/README-example_6-1.png" width="100%" /><img src="man/figures/README-example_6-2.png" width="100%" />
+The plates are displayed, the correction applied is displayed. We have
+set the plates here to coincide perfectly with the plates boundaries.
+The time series displayed here is different than with the flexwinn
+function because there is an additional step before detrending.

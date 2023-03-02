@@ -13,7 +13,8 @@ winn(data, end.plates, graph = FALSE)
 in terms of run order. The vector must be ordered.}
 
 \item{graph}{TRUE or FALSE. If TRUE will display the graph of uncorrected
-data with plates and correction}
+data with plates and correction and the corrected signal on a
+second plot.}
 }
 \value{
 the corrected dataframe of metabolite(s).
