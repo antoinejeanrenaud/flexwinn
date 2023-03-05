@@ -110,25 +110,25 @@ flexwinn<-function(data,graph=FALSE){
     data.norm<-normalize.var(datanew,changepoints)
     #####
     #plot corrected
-    # if (k==1){
-    #   if (graph==TRUE){
-    #
-    #     ##We display the corrected signal for the first metabolite
-    #     concentration<-data.norm
-    #     plot(concentration,col="darkgray",
-    #          xlab="reading sequence",ylab="corrected signal",
-    #          main="corrected signal",
-    #          type="l")
-    #
-    #     legend(
-    #       "bottomleft",
-    #       lty = c(1, 1),
-    #       col = c("darkgrey"),
-    #       legend = c("corrected"),
-    #       cex=0.5
-    #     )
-    #   }
-    #   }
+    if (k==1){
+      if (graph==TRUE){
+
+        ##We display the corrected signal for the first metabolite
+        concentration<-data.norm
+        plot(concentration,col="darkgray",
+             xlab="reading sequence",ylab="corrected signal",
+             main="corrected signal",
+             type="l")
+
+        legend(
+          "bottomleft",
+          lty = c(1, 1),
+          col = c("darkgrey"),
+          legend = c("corrected"),
+          cex=0.5
+        )
+      }
+      }
     #######
    #return result
     corrected[[k]]<-data.norm
