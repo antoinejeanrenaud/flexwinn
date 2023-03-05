@@ -82,53 +82,53 @@ flexwinn<-function(data,graph=FALSE){
         pred<-c(pred,rep(mean(subset),size))
       }
     }
-    if (k==1){
-    if (graph==TRUE){
-      ## here is the code to plot visualization of how the algorithm works
-      ## We display change points together with uncorrected signal and
-      ## the correction that will be applied
-      concentration<-data[[k]]
-      plot(concentration,col="darkgray",
-           xlab="reading sequence",ylab="uncorrected signal",
-           main="uncorrected signal + correction and change points",
-           type="l")
-      for (l in changepoints) {
-        abline(v=l,col="red",lty=2)
-      }
-      lines(1:length(data[[k]]),pred,col="red")
-      legend(
-        "bottomleft",
-        lty = c(1, 1),
-        col = c("darkgrey", "red"),
-        legend = c("Uncorrected", "Correction"),
-        cex=0.5
-      )
-    }}
-    datanew<-datanew-pred
-    #######
-    #normalizing by segment
-    data.norm<-normalize.var(datanew,changepoints)
-    #####
-    #plot corrected
-    if (k==1){
-      if (graph==TRUE){
-
-        ##We display the corrected signal for the first metabolite
-        concentration<-data.norm
-        plot(concentration,col="darkgray",
-             xlab="reading sequence",ylab="corrected signal",
-             main="corrected signal",
-             type="l")
-
-        legend(
-          "bottomleft",
-          lty = c(1, 1),
-          col = c("darkgrey"),
-          legend = c("corrected"),
-          cex=0.5
-        )
-      }
-      }
+    # if (k==1){
+    # if (graph==TRUE){
+    #   ## here is the code to plot visualization of how the algorithm works
+    #   ## We display change points together with uncorrected signal and
+    #   ## the correction that will be applied
+    #   concentration<-data[[k]]
+    #   plot(concentration,col="darkgray",
+    #        xlab="reading sequence",ylab="uncorrected signal",
+    #        main="uncorrected signal + correction and change points",
+    #        type="l")
+    #   for (l in changepoints) {
+    #     abline(v=l,col="red",lty=2)
+    #   }
+    #   lines(1:length(data[[k]]),pred,col="red")
+    #   legend(
+    #     "bottomleft",
+    #     lty = c(1, 1),
+    #     col = c("darkgrey", "red"),
+    #     legend = c("Uncorrected", "Correction"),
+    #     cex=0.5
+    #   )
+    # }}
+    # datanew<-datanew-pred
+    # #######
+    # #normalizing by segment
+    # data.norm<-normalize.var(datanew,changepoints)
+    # #####
+    # #plot corrected
+    # if (k==1){
+    #   if (graph==TRUE){
+    #
+    #     ##We display the corrected signal for the first metabolite
+    #     concentration<-data.norm
+    #     plot(concentration,col="darkgray",
+    #          xlab="reading sequence",ylab="corrected signal",
+    #          main="corrected signal",
+    #          type="l")
+    #
+    #     legend(
+    #       "bottomleft",
+    #       lty = c(1, 1),
+    #       col = c("darkgrey"),
+    #       legend = c("corrected"),
+    #       cex=0.5
+    #     )
+    #   }
+    #   }
     #######
    #return result
     corrected[[k]]<-data.norm
