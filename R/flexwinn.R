@@ -75,11 +75,11 @@ flexwinn<-function(data,graph=FALSE){
         spline<-mgcv::gam(subset~s(x,bs="cr",k=dfw,fx=TRUE))
         pred<-c(pred,spline$fitted.values)#correction that will be applied
       }else{
-        pred<-c(pred,rep(mean(subset),size)) #store the correction
+        pred<-c(pred,rep(median(subset),size)) #store the correction
       }
 
       }else{
-        pred<-c(pred,rep(mean(subset),size))
+        pred<-c(pred,rep(median(subset),size))
       }
     }
     if (k==1){
