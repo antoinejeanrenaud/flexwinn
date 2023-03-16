@@ -55,15 +55,22 @@ flexwinn<-function(data,graph=FALSE){
     colname<-colnames(data[k])
     #If there is no name give one
     if (is.null(colname)){colnames(data[k])<-paste("met_",k,sep="")}
+    changes<-length(changepoints)
+    datanew<-data[[k]]-mean(data[[k]])
+    #####
+    #First normalization
+    #This normalization is for the next anova test
+    data.norm<-normalize.var(datanew,changepoints)
+    ######
+    #Residualizing if needed
+    data.resid<-residualize(data.norm,changepoints)
     #############
     #Detrending
-    changes<-length(changepoints)
-    datanew<-data[[k]]
-    tau<-c(0,changepoints,length(data[[k]]))
+    tau<-c(0,changepoints,length(data.resid))
     pred<-NULL #create a variable to store correction
     for (c in 1:(changes+1)){
       #take each segment
-      subset<-datanew[(tau[c]+1):tau[c+1]]
+      subset<-data.resid[(tau[c]+1):tau[c+1]]
       size<-length(subset)
       if (size>=5){
         pvalue<-Box.test(subset,lag=floor(length(subset)/2),
@@ -75,11 +82,11 @@ flexwinn<-function(data,graph=FALSE){
         spline<-mgcv::gam(subset~s(x,bs="cr",k=dfw,fx=TRUE))
         pred<-c(pred,spline$fitted.values)#correction that will be applied
       }else{
-        pred<-c(pred,rep(median(subset),size)) #store the correction
+        pred<-c(pred,rep(0,size)) #store the correction
       }
 
       }else{
-        pred<-c(pred,rep(median(subset),size))
+        pred<-c(pred,rep(0,size))
       }
     }
     if (k==1){
@@ -87,7 +94,7 @@ flexwinn<-function(data,graph=FALSE){
       ## here is the code to plot visualization of how the algorithm works
       ## We display change points together with uncorrected signal and
       ## the correction that will be applied
-      concentration<-data[[k]]
+      concentration<-data.resid
       plot(concentration,col="darkgray",
            xlab="reading sequence",ylab="uncorrected signal",
            main="uncorrected signal + correction and change points",
@@ -95,7 +102,7 @@ flexwinn<-function(data,graph=FALSE){
       for (l in changepoints) {
         abline(v=l,col="red",lty=2)
       }
-      lines(1:length(data[[k]]),pred,col="red")
+      lines(1:length(data.resid),pred,col="red")
       legend(
         "bottomleft",
         lty = c(1, 1),
@@ -104,17 +111,17 @@ flexwinn<-function(data,graph=FALSE){
         cex=0.5
       )
     }}
-    datanew<-datanew-pred
+    datanew<-data.resid-pred
     #######
     #normalizing by segment
-    data.norm<-normalize.var(datanew,changepoints)
+    data.norm.2<-normalize.var(datanew,changepoints)
     #####
     #plot corrected
     if (k==1){
       if (graph==TRUE){
 
         ##We display the corrected signal for the first metabolite
-        concentration<-data.norm
+        concentration<-data.norm.2
         plot(concentration,col="darkgray",
              xlab="reading sequence",ylab="corrected signal",
              main="corrected signal",
@@ -131,7 +138,7 @@ flexwinn<-function(data,graph=FALSE){
       }
     #######
    #return result
-    corrected[[k]]<-data.norm
+    corrected[[k]]<-data.norm.2
   }
 
   return(corrected)
