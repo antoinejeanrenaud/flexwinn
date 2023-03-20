@@ -166,7 +166,7 @@ changetometa<-function(data,changepoints){
 ## autocorrelation test o the residuals. For the spline fit we are using mgcv::gam
 dfwhitenoise<-function(data){
   t<-n_distinct(data)
-  l<-max(min(c(t-1,floor(t*5/100))),3)
+  l<-max(min(c(t-1,floor(t*10/100))),3)
   value<-numeric(length = l-2)
   #loop to test different fit
   for (i in 3:l){
