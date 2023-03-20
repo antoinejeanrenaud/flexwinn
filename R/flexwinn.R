@@ -69,7 +69,7 @@ flexwinn<-function(data,graph=FALSE){
         pvalue<-Box.test(subset,lag=floor(length(subset)/2),
                          type="Ljung-Box")$p.value
         # Test if the segment has autocorrelation
-        if (!is.na(pvalue) & pvalue<0.05){
+        if (!is.na(pvalue) & pvalue<0.01){
         dfw<-dfwhitenoise(subset) #Find the best degree of freedom
         x<-1:length(subset)
         spline<-mgcv::gam(subset~s(x,bs="cr",k=dfw,fx=TRUE))
